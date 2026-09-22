@@ -295,6 +295,17 @@ const Api = {
         return await this.request('/occupancy/comparison');
     },
 
+    getOccupancyAnalytics: async function(params = {}) {
+        const cleanParams = {};
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                cleanParams[key] = params[key];
+            }
+        });
+        const q = new URLSearchParams(cleanParams).toString();
+        return await this.request(`/occupancy/analytics${q ? '?' + q : ''}`);
+    },
+
     // --- ML Prediction APIs ---
     predictAvailability: async function(predictionData) {
         return await this.request('/predictions/availability', {

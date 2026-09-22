@@ -11,7 +11,8 @@ from ..schemas.occupancy import (
     OccupancyRecordOut,
     OccupancySummaryOut,
     OccupancyTrendPoint,
-    AreaComparisonItem
+    AreaComparisonItem,
+    AnalyticsSummaryOut
 )
 
 router = APIRouter(dependencies=[Depends(get_current_admin)])
@@ -109,3 +110,30 @@ def get_occupancy_trends(
 @router.get("/comparison", response_model=List[AreaComparisonItem])
 def get_area_comparison(db: Session = Depends(get_db)):
     return OccupancyService.get_area_comparison(db=db)
+
+@router.get("/analytics", response_model=AnalyticsSummaryOut)
+def get_parking_analytics(
+    area_id: Optional[int] = Query(None, description="Filter by area ID"),
+    start_date: Optional[date] = Query(None, description="Filter start date"),
+    end_date: Optional[date] = Query(None, description="Filter end date"),
+    day_of_week: Optional[str] = Query(None, description="Filter by day of week"),
+    weather: Optional[str] = Query(None, description="Filter by weather"),
+    is_holiday: Optional[bool] = Query(None, description="Filter by holiday flag"),
+    is_weekend: Optional[bool] = Query(None, description="Filter by weekend flag"),
+    db: Session = Depends(get_db)
+):
+    if start_date and end_date and start_date > end_date:
+        raise HTTPException(status_code=400, detail="start_date cannot be greater than end_date")
+
+    data = OccupancyService.get_analytics(
+        db=db,
+        area_id=area_id,
+        start_date=start_date,
+        end_date=end_date,
+        day_of_week=day_of_week,
+        weather=weather,
+        is_holiday=is_holiday,
+        is_weekend=is_weekend
+    )
+    return {"success": True, "data": data}
+

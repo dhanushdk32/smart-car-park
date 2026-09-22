@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics - Admin - SmartPark</title>
+    <title>Occupancy Analytics - Admin - SmartPark</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,127 +15,782 @@
 
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
-        <!-- Reusable sidebar structure -->
         <div class="px-4 mb-4">
             <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
             <span class="text-muted small fw-medium">Admin Portal</span>
         </div>
         <div class="list-group list-group-flush border-none">
-            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
-            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
-            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-geo-alt me-2"></i> Parking Areas
+            </a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-grid-3x3 me-2"></i> Parking Slots
+            </a>
+            <a href="historical.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-clock-history me-2"></i> Historical Data
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
-            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
-            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
-            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-ticket-perforated me-2"></i> Bookings
+            </a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-people me-2"></i> Users
+            </a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-credit-card me-2"></i> Payments
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
-            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
-            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0 active">
+                <i class="bi bi-graph-up me-2"></i> Occupancy Analytics
+            </a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-cpu me-2"></i> ML Predictions
+            </a>
+            <a href="model-performance.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-clipboard2-data me-2"></i> Model Performance
+            </a>
         </div>
     </aside>
 
+    <!-- Main Content -->
     <main class="admin-main pb-5">
         <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
             <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
-            <h5 class="fw-bold m-0 d-none d-md-block">Occupancy Analytics</h5>
+            <div>
+                <h5 class="fw-bold m-0 d-none d-md-block">Advanced Parking Occupancy Analytics</h5>
+                <span class="text-muted small">Deep historical utilization metrics, hourly congestion profiles, and weather analysis</span>
+            </div>
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
-                    <span class="fw-medium">Super Admin</span>
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="handleLogout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                 </ul>
             </div>
         </nav>
 
-        <div class="container-fluid">
-            <!-- Filter -->
+        <div class="container-fluid px-0">
+
+            <!-- System Architecture Badge -->
+            <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-4 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="badge-icon bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                        <i class="bi bi-database-check fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-primary">Database Aggregation Engine</h6>
+                        <small class="text-muted">Calculated directly over 26,064 records in the <code class="text-primary">parking_occupancy</code> dataset across all urban zones.</small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-white text-primary border shadow-sm px-3 py-2"><i class="bi bi-check-circle me-1"></i> Live DB Sync</span>
+                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="loadAnalyticsData()"><i class="bi bi-arrow-repeat me-1"></i> Refresh</button>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-body p-3">
-                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-primary btn-sm px-3">Daily</button>
-                            <button class="btn btn-outline-secondary btn-sm px-3">Weekly</button>
-                            <button class="btn btn-outline-secondary btn-sm px-3">Monthly</button>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label small fw-medium text-muted mb-1">Parking Area</label>
+                            <select class="form-select form-select-sm bg-light border-0" id="filterArea">
+                                <option value="">All Areas</option>
+                            </select>
                         </div>
-                        <div class="d-flex gap-2">
-                            <input type="date" class="form-control form-control-sm">
-                            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i></button>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-medium text-muted mb-1">Start Date</label>
+                            <input type="date" class="form-control form-control-sm bg-light border-0" id="filterStartDate">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-medium text-muted mb-1">End Date</label>
+                            <input type="date" class="form-control form-control-sm bg-light border-0" id="filterEndDate">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-medium text-muted mb-1">Day of Week</label>
+                            <select class="form-select form-select-sm bg-light border-0" id="filterDay">
+                                <option value="">All Days</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-medium text-muted mb-1">Weather</label>
+                            <select class="form-select form-select-sm bg-light border-0" id="filterWeather">
+                                <option value="">All</option>
+                                <option value="Sunny">Sunny</option>
+                                <option value="Cloudy">Cloudy</option>
+                                <option value="Rainy">Rainy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-medium text-muted mb-1">Weekend</label>
+                            <select class="form-select form-select-sm bg-light border-0" id="filterWeekend">
+                                <option value="">All</option>
+                                <option value="true">Weekend</option>
+                                <option value="false">Weekday</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-medium text-muted mb-1">Holiday</label>
+                            <select class="form-select form-select-sm bg-light border-0" id="filterHoliday">
+                                <option value="">All</option>
+                                <option value="true">Holiday</option>
+                                <option value="false">Regular</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex gap-1">
+                            <button class="btn btn-primary btn-sm w-100" title="Apply Filters" onclick="applyFilters()"><i class="bi bi-search"></i></button>
+                            <button class="btn btn-light btn-sm text-muted" title="Reset Filters" onclick="resetFilters()"><i class="bi bi-arrow-counterclockwise"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts -->
-            <div class="row g-4 mb-4">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h6 class="fw-bold m-0">Hourly Occupancy Trend (Today)</h6>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="chart-container">
-                                <canvas id="occupancyChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Loading Spinner -->
+            <div id="analyticsLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading Analytics...</span>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h6 class="fw-bold m-0">Area Distribution</h6>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="chart-container">
-                                <canvas id="areaComparisonChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <p class="text-muted mt-2">Computing multi-dimensional SQL aggregates...</p>
             </div>
 
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h6 class="fw-bold m-0">Weekly Average Occupancy</h6>
+            <!-- Analytics Content Container -->
+            <div id="analyticsContainer" style="display: none;">
+
+                <!-- 8 KPI Metrics Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Total Areas</span>
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1" id="kpiTotalAreas">3</h3>
+                            <span class="text-muted small">Active monitored zones</span>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="chart-container">
-                                <canvas id="weeklyOccupancyChart"></canvas>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Total Slots</span>
+                                <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-grid-fill"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1" id="kpiTotalSlots">150</h3>
+                            <span class="text-muted small">Managed live inventory</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Avg Occupancy</span>
+                                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-speedometer"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-primary" id="kpiAvgOccupancy">75.8%</h3>
+                            <span class="text-muted small">Average facility utilization</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Avg Free Slots</span>
+                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-check2-circle"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-success" id="kpiAvgFree">11.2</h3>
+                            <span class="text-muted small">Slots available per snapshot</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Peak Occupancy</span>
+                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-danger" id="kpiPeakOccupancy">100.0%</h3>
+                            <span class="text-muted small">Maximum recorded load</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Lowest Occupancy</span>
+                                <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-graph-down-arrow"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1" id="kpiLowestOccupancy">18.0%</h3>
+                            <span class="text-muted small">Minimum baseline load</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">Historical Data</span>
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1" id="kpiHistoricalRecords">26,064</h3>
+                            <span class="text-muted small">Data points analyzed</span>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100 p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-muted small fw-semibold text-uppercase">ML Predictions</span>
+                                <div class="bg-purple bg-opacity-10 text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="background-color: #ede9fe; width: 36px; height: 36px;">
+                                    <i class="bi bi-cpu-fill text-primary"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-primary" id="kpiPredictionsLogged">0</h3>
+                            <span class="text-muted small">Queries logged to DB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peak Congestion Insight Card -->
+                <div class="card shadow-sm border-0 rounded-4 mb-4 bg-light">
+                    <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="badge bg-warning bg-opacity-25 text-dark p-3 rounded-circle">
+                                <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Peak Congestion Analysis (&ge; 80% Occupancy)</h6>
+                                <p class="text-muted mb-0 small" id="peakCongestionDesc">Loading congestion analysis...</p>
+                            </div>
+                        </div>
+                        <div id="peakHoursBadges" class="d-flex flex-wrap gap-1">
+                            <!-- Badges injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Grid: Row 1 -->
+                <div class="row g-4 mb-4">
+                    <!-- Hourly 24-Hour Trend -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm border-0 rounded-4 h-100">
+                            <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold m-0"><i class="bi bi-clock me-2 text-primary"></i>24-Hour Hourly Utilization & Free Slots</h6>
+                                    <small class="text-muted">Average occupancy rate (%) and free slot availability throughout the day</small>
+                                </div>
+                                <span class="badge bg-light text-muted border">00:00 - 23:00</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="chart-container" style="position: relative; height: 300px;">
+                                    <canvas id="chartHourlyAnalytics"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Comparison Chart -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm border-0 rounded-4 h-100">
+                            <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                                <h6 class="fw-bold m-0"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Area-Wise Occupancy</h6>
+                                <small class="text-muted">Average utilization by location</small>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="chart-container" style="position: relative; height: 300px;">
+                                    <canvas id="chartAreaAnalytics"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h6 class="fw-bold m-0">Revenue Trend (Last 7 Days)</h6>
+
+                <!-- Chart Grid: Row 2 -->
+                <div class="row g-4 mb-4">
+                    <!-- Day of Week Distribution -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0 rounded-4 h-100">
+                            <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold m-0"><i class="bi bi-calendar-week me-2 text-success"></i>Day of Week Occupancy Trend</h6>
+                                    <small class="text-muted">Monday through Sunday parking saturation pattern</small>
+                                </div>
+                                <span class="badge bg-success bg-opacity-10 text-success">Weekly Pattern</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="chart-container" style="position: relative; height: 260px;">
+                                    <canvas id="chartDayOfWeekAnalytics"></canvas>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body p-4">
-                            <div class="chart-container">
-                                <canvas id="revenueChart"></canvas>
+                    </div>
+
+                    <!-- Weekend vs Weekday -->
+                    <div class="col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100">
+                            <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                                <h6 class="fw-bold m-0"><i class="bi bi-pie-chart-fill me-2 text-info"></i>Weekend vs Weekday</h6>
+                                <small class="text-muted">Load distribution</small>
+                            </div>
+                            <div class="card-body p-4 d-flex align-items-center justify-content-center">
+                                <div class="chart-container w-100" style="position: relative; height: 260px;">
+                                    <canvas id="chartWeekendAnalytics"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather Impact -->
+                    <div class="col-lg-3">
+                        <div class="card shadow-sm border-0 rounded-4 h-100">
+                            <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                                <h6 class="fw-bold m-0"><i class="bi bi-cloud-sun me-2 text-warning"></i>Weather Impact</h6>
+                                <small class="text-muted">Occupancy under conditions</small>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="chart-container" style="position: relative; height: 260px;">
+                                    <canvas id="chartWeatherAnalytics"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Detailed Area Performance Table -->
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold m-0"><i class="bi bi-table me-2 text-primary"></i>Parking Areas Comparative Breakdown</h6>
+                            <small class="text-muted">Exact metrics computed over filtered records</small>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Area Name</th>
+                                        <th>Total Records</th>
+                                        <th>Avg Occupancy</th>
+                                        <th>Avg Free Slots</th>
+                                        <th>Avg Occupied</th>
+                                        <th>Peak Occupancy</th>
+                                        <th>Lowest Occupancy</th>
+                                        <th class="pe-4">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="areaTableBody">
+                                    <!-- Injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/mock-data.js"></script>
+    <script src="../js/api.js"></script>
     <script src="../js/admin.js"></script>
-    <script src="../js/charts.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.AppCharts) {
-                window.AppCharts.initAnalyticsCharts();
+        // Chart Instances
+        let chartHourly = null;
+        let chartArea = null;
+        let chartDayOfWeek = null;
+        let chartWeekend = null;
+        let chartWeather = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Auth check
+            if (!Api.getToken() || localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+                return;
             }
+
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            if (userData.name) {
+                document.getElementById('adminUserName').textContent = userData.name;
+            }
+
+            // Mobile sidebar toggle
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            if (toggle && sidebar) {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            await loadAreaDropdown();
+            await loadAnalyticsData();
         });
+
+        function handleLogout() {
+            Api.removeToken();
+            window.location.href = 'login.html';
+        }
+
+        async function loadAreaDropdown() {
+            try {
+                const res = await Api.getParkingAreas();
+                const areas = (res && res.areas) ? res.areas : (res && res.data ? res.data : []);
+                const select = document.getElementById('filterArea');
+                areas.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a.id;
+                    opt.textContent = a.name;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.warn('Could not load areas dropdown:', err);
+            }
+        }
+
+        async function loadAnalyticsData() {
+            document.getElementById('analyticsLoading').style.display = 'block';
+            document.getElementById('analyticsContainer').style.display = 'none';
+
+            const params = {
+                area_id: document.getElementById('filterArea').value,
+                start_date: document.getElementById('filterStartDate').value,
+                end_date: document.getElementById('filterEndDate').value,
+                day_of_week: document.getElementById('filterDay').value,
+                weather: document.getElementById('filterWeather').value,
+                is_weekend: document.getElementById('filterWeekend').value,
+                is_holiday: document.getElementById('filterHoliday').value
+            };
+
+            try {
+                const res = await Api.getOccupancyAnalytics(params);
+                if (res && res.data) {
+                    renderAnalytics(res.data);
+                }
+            } catch (err) {
+                console.error('Failed to load analytics:', err);
+                alert('Error loading analytics: ' + err.message);
+            } finally {
+                document.getElementById('analyticsLoading').style.display = 'none';
+                document.getElementById('analyticsContainer').style.display = 'block';
+            }
+        }
+
+        function applyFilters() {
+            loadAnalyticsData();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterArea').value = '';
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterDay').value = '';
+            document.getElementById('filterWeather').value = '';
+            document.getElementById('filterWeekend').value = '';
+            document.getElementById('filterHoliday').value = '';
+            loadAnalyticsData();
+        }
+
+        function renderAnalytics(data) {
+            // 1. KPIs
+            const k = data.kpis;
+            document.getElementById('kpiTotalAreas').textContent = k.total_areas;
+            document.getElementById('kpiTotalSlots').textContent = k.total_slots;
+            document.getElementById('kpiAvgOccupancy').textContent = k.average_occupancy.toFixed(1) + '%';
+            document.getElementById('kpiAvgFree').textContent = k.average_free_slots.toFixed(1);
+            document.getElementById('kpiPeakOccupancy').textContent = k.peak_occupancy.toFixed(1) + '%';
+            document.getElementById('kpiLowestOccupancy').textContent = k.lowest_occupancy.toFixed(1) + '%';
+            document.getElementById('kpiHistoricalRecords').textContent = k.total_historical_records.toLocaleString();
+            document.getElementById('kpiPredictionsLogged').textContent = k.total_predictions.toLocaleString();
+
+            // 2. Peak Congestion Info
+            const peak = data.peak_periods;
+            document.getElementById('peakCongestionDesc').textContent = peak.description;
+            const badgeContainer = document.getElementById('peakHoursBadges');
+            badgeContainer.innerHTML = '';
+            if (peak.high_occupancy_hours && peak.high_occupancy_hours.length > 0) {
+                peak.high_occupancy_hours.forEach(h => {
+                    const span = document.createElement('span');
+                    span.className = 'badge bg-danger rounded-pill px-3 py-2';
+                    span.innerHTML = `<i class="bi bi-clock-fill me-1"></i> ${h}`;
+                    badgeContainer.appendChild(span);
+                });
+            } else {
+                const span = document.createElement('span');
+                span.className = 'badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2';
+                span.innerHTML = '<i class="bi bi-shield-check me-1"></i> No Congestion Bottlenecks';
+                badgeContainer.appendChild(span);
+            }
+
+            // 3. Hourly Trend Chart
+            renderHourlyChart(data.hourly_trend);
+
+            // 4. Area-wise Chart
+            renderAreaChart(data.area_wise);
+
+            // 5. Day of Week Chart
+            renderDayOfWeekChart(data.day_of_week_trend);
+
+            // 6. Weekend vs Weekday Chart
+            renderWeekendChart(data.weekend_comparison);
+
+            // 7. Weather Impact Chart
+            renderWeatherChart(data.weather_analysis);
+
+            // 8. Area Summary Table
+            renderAreaTable(data.area_wise);
+        }
+
+        function renderHourlyChart(hourlyTrend) {
+            const ctx = document.getElementById('chartHourlyAnalytics').getContext('2d');
+            const labels = hourlyTrend.map(d => d.label);
+            const occData = hourlyTrend.map(d => d.average_occupancy);
+            const freeData = hourlyTrend.map(d => d.average_free_slots);
+
+            if (chartHourly) chartHourly.destroy();
+
+            chartHourly = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Avg Occupancy (%)',
+                            data: occData,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.35,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Avg Free Slots',
+                            data: freeData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.35,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 0,
+                            max: 100,
+                            ticks: { callback: v => v + '%' },
+                            title: { display: true, text: 'Occupancy %' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Free Slots' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        function renderAreaChart(areaWise) {
+            const ctx = document.getElementById('chartAreaAnalytics').getContext('2d');
+            const labels = areaWise.map(a => a.area_name);
+            const occData = areaWise.map(a => a.average_occupancy);
+
+            if (chartArea) chartArea.destroy();
+
+            chartArea = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Occupancy (%)',
+                        data: occData,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderDayOfWeekChart(dayOfWeek) {
+            const ctx = document.getElementById('chartDayOfWeekAnalytics').getContext('2d');
+            const labels = dayOfWeek.map(d => d.day);
+            const occData = dayOfWeek.map(d => d.average_occupancy);
+
+            if (chartDayOfWeek) chartDayOfWeek.destroy();
+
+            chartDayOfWeek = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Occupancy (%)',
+                        data: occData,
+                        backgroundColor: labels.map(d => (d === 'Saturday' || d === 'Sunday') ? '#f59e0b' : '#3b82f6'),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderWeekendChart(weekendData) {
+            const ctx = document.getElementById('chartWeekendAnalytics').getContext('2d');
+            const labels = weekendData.map(w => w.category);
+            const occData = weekendData.map(w => w.average_occupancy);
+
+            if (chartWeekend) chartWeekend.destroy();
+
+            chartWeekend = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: occData,
+                        backgroundColor: ['#3b82f6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: item => ` ${item.label}: ${item.raw}% avg occupancy`
+                            }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function renderWeatherChart(weatherData) {
+            const ctx = document.getElementById('chartWeatherAnalytics').getContext('2d');
+            const labels = weatherData.map(w => w.weather);
+            const occData = weatherData.map(w => w.average_occupancy);
+
+            if (chartWeather) chartWeather.destroy();
+
+            chartWeather = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Occupancy (%)',
+                        data: occData,
+                        backgroundColor: ['#06b6d4', '#64748b', '#3b82f6', '#10b981'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderAreaTable(areaWise) {
+            const tbody = document.getElementById('areaTableBody');
+            tbody.innerHTML = '';
+            areaWise.forEach(a => {
+                const tr = document.createElement('tr');
+                const isHigh = a.average_occupancy >= 80;
+                tr.innerHTML = `
+                    <td class="ps-4 fw-semibold">${a.area_name}</td>
+                    <td><span class="badge bg-light text-dark border">${a.total_records.toLocaleString()}</span></td>
+                    <td class="fw-bold ${isHigh ? 'text-danger' : 'text-primary'}">${a.average_occupancy}%</td>
+                    <td class="text-success fw-medium">${a.average_free_slots}</td>
+                    <td>${a.average_occupied_slots}</td>
+                    <td><span class="badge bg-danger bg-opacity-10 text-danger">${a.max_occupancy}%</span></td>
+                    <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${a.min_occupancy}%</span></td>
+                    <td class="pe-4">
+                        <span class="badge ${isHigh ? 'bg-danger' : 'bg-success'} rounded-pill px-2 py-1">
+                            ${isHigh ? 'High Demand' : 'Normal Demand'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
     </script>
 </body>
 </html>

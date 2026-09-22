@@ -56,3 +56,76 @@ class AreaComparisonItem(BaseModel):
     average_occupancy_percentage: float
     average_free_slots: float
     total_records: int
+
+# --- Advanced Parking Analytics Schemas ---
+class AnalyticsKPIData(BaseModel):
+    total_areas: int
+    total_slots: int
+    average_occupancy: float
+    average_free_slots: float
+    peak_occupancy: float
+    lowest_occupancy: float
+    total_historical_records: int
+    total_predictions: int
+
+class AreaWiseStat(BaseModel):
+    area_id: int
+    area_name: str
+    average_occupancy: float
+    average_free_slots: float
+    average_occupied_slots: float
+    max_occupancy: float
+    min_occupancy: float
+    total_records: int
+
+class HourlyStat(BaseModel):
+    hour: int
+    label: str
+    average_occupancy: float
+    average_free_slots: float
+
+class DayOfWeekStat(BaseModel):
+    day: str
+    average_occupancy: float
+    average_free_slots: float
+
+class WeekendComparisonStat(BaseModel):
+    category: str
+    is_weekend: bool
+    average_occupancy: float
+    average_free_slots: float
+    average_occupied_slots: float
+    count: int
+
+class WeatherStat(BaseModel):
+    weather: str
+    average_occupancy: float
+    average_free_slots: float
+    count: int
+
+class HolidayComparisonStat(BaseModel):
+    category: str
+    is_holiday: bool
+    average_occupancy: float
+    average_free_slots: float
+    count: int
+
+class PeakPeriodInfo(BaseModel):
+    threshold_percentage: float
+    high_occupancy_hours: List[str]
+    description: str
+
+class AnalyticsData(BaseModel):
+    kpis: AnalyticsKPIData
+    area_wise: List[AreaWiseStat]
+    hourly_trend: List[HourlyStat]
+    day_of_week_trend: List[DayOfWeekStat]
+    weekend_comparison: List[WeekendComparisonStat]
+    weather_analysis: List[WeatherStat]
+    holiday_analysis: List[HolidayComparisonStat]
+    peak_periods: PeakPeriodInfo
+
+class AnalyticsSummaryOut(BaseModel):
+    success: bool = True
+    data: AnalyticsData
+
