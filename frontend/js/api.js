@@ -250,6 +250,49 @@ const Api = {
 
     getAdminPaymentStats: async function() {
         return await this.request('/admin/payments/stats');
+    },
+
+    // --- Historical Occupancy APIs ---
+    getOccupancyHistory: async function(params = {}) {
+        const cleanParams = {};
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                cleanParams[key] = params[key];
+            }
+        });
+        const q = new URLSearchParams(cleanParams).toString();
+        return await this.request(`/occupancy/history${q ? '?' + q : ''}`);
+    },
+
+    getOccupancyRecord: async function(id) {
+        return await this.request(`/occupancy/history/${id}`);
+    },
+
+    getOccupancySummary: async function(areaId = null, params = {}) {
+        const cleanParams = {};
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                cleanParams[key] = params[key];
+            }
+        });
+        const q = new URLSearchParams(cleanParams).toString();
+        const url = areaId ? `/occupancy/summary/${areaId}${q ? '?' + q : ''}` : `/occupancy/summary${q ? '?' + q : ''}`;
+        return await this.request(url);
+    },
+
+    getOccupancyTrends: async function(params = {}) {
+        const cleanParams = {};
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                cleanParams[key] = params[key];
+            }
+        });
+        const q = new URLSearchParams(cleanParams).toString();
+        return await this.request(`/occupancy/trends${q ? '?' + q : ''}`);
+    },
+
+    getOccupancyComparison: async function() {
+        return await this.request('/occupancy/comparison');
     }
 };
 
