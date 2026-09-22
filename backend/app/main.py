@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .core.database import Base, engine
 
-from .routers import auth, users, parking, admin, bookings, payments, occupancy
+from .routers import auth, users, parking, admin, bookings, payments, occupancy, predictions
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -34,3 +34,5 @@ app.include_router(bookings.router, prefix="/api/bookings", tags=["Bookings"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin Operations"])
 app.include_router(occupancy.router, prefix="/api/occupancy", tags=["Historical Occupancy"])
+app.include_router(predictions.router, prefix="/api/predictions", tags=["ML Predictions"])
+

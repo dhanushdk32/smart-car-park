@@ -9,3 +9,7 @@ passlib[bcrypt]
 python-multipart
 razorpay
 python-dotenv
+joblib
+pandas
+numpy
+scikit-learn
