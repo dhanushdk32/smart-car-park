@@ -9,39 +9,66 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
     <link href="../css/admin.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
 
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
-        <!-- Reusable sidebar structure -->
         <div class="px-4 mb-4">
             <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
             <span class="text-muted small fw-medium">Admin Portal</span>
         </div>
         <div class="list-group list-group-flush border-none">
-            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
-            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
-            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-geo-alt me-2"></i> Parking Areas
+            </a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-grid-3x3 me-2"></i> Parking Slots
+            </a>
+            <a href="historical.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-clock-history me-2"></i> Historical Data
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
-            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
-            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
-            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-ticket-perforated me-2"></i> Bookings
+            </a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-people me-2"></i> Users
+            </a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-credit-card me-2"></i> Payments
+            </a>
+            
             <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
-            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
-            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0 active"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-graph-up me-2"></i> Occupancy Analytics
+            </a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0 active">
+                <i class="bi bi-cpu me-2"></i> ML Predictions
+            </a>
         </div>
     </aside>
 
+    <!-- Main Content -->
     <main class="admin-main pb-5">
+        <!-- Top Navbar -->
         <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
             <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
-            <h5 class="fw-bold m-0 d-none d-md-block">Prediction Simulator</h5>
+            <div class="d-none d-md-block">
+                <h5 class="fw-bold m-0">Machine Learning Predictions Dashboard</h5>
+                <span class="text-muted small">Area-level free slot availability forecasting & analytics</span>
+            </div>
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
-                    <span class="fw-medium">Super Admin</span>
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
                     <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
@@ -51,148 +78,312 @@
 
         <div class="container-fluid">
             
-            <div class="row g-4 mb-4">
-                <div class="col-lg-5">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h5 class="fw-bold m-0">Run Prediction</h5>
-                        </div>
+            <!-- Summary KPI Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-sm-6">
+                    <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-body p-4">
-                            <form onsubmit="event.preventDefault(); simulatePrediction();">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-medium">Parking Area</label>
-                                    <select class="form-select" id="predArea">
-                                        <option value="Mall">Mall Parking</option>
-                                        <option value="City Center">City Center</option>
-                                        <option value="Theatre">Theatre Parking</option>
-                                    </select>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small fw-bold text-uppercase">Total Predictions</span>
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2">
+                                    <i class="bi bi-cpu fs-5"></i>
                                 </div>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-medium">Date</label>
-                                        <input type="date" class="form-control" id="predDate" required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-medium">Time</label>
-                                        <input type="time" class="form-control" id="predTime" value="18:00" required>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-cpu me-2"></i> Predict Availability</button>
-                            </form>
-                            
-                            <div class="alert alert-info border-0 mt-4 small mb-0">
-                                <i class="bi bi-info-circle me-1"></i> Prediction based on historical parking patterns. (Simulation for Stage 1)
                             </div>
+                            <h2 class="fw-bolder mb-1" id="statTotalPredictions">--</h2>
+                            <span class="text-muted small">All logged model inquiries</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-7">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                            <h5 class="fw-bold m-0">Prediction Result</h5>
+                <div class="col-xl-3 col-sm-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small fw-bold text-uppercase">Likely Available</span>
+                                <div class="bg-success bg-opacity-10 text-success rounded-3 p-2">
+                                    <i class="bi bi-check-circle fs-5"></i>
+                                </div>
+                            </div>
+                            <h2 class="fw-bolder mb-1 text-success" id="statPredictedAvailable">--</h2>
+                            <span class="text-muted small">Predicted has free slots</span>
                         </div>
-                        <div class="card-body p-4 d-flex align-items-center justify-content-center">
-                            
-                            <div id="predPlaceholder" class="text-center text-muted w-100">
-                                <i class="bi bi-magic fs-1 mb-3 d-block opacity-50"></i>
-                                <p>Enter parameters and click predict to see the forecasted availability.</p>
-                            </div>
+                    </div>
+                </div>
 
-                            <div id="predResult" class="d-none w-100">
-                                <h4 class="fw-bold text-primary mb-1" id="resArea">Mall Parking</h4>
-                                <p class="text-muted small mb-4" id="resDateTime">--</p>
-                                
-                                <div class="row g-4 text-center">
-                                    <div class="col-4">
-                                        <div class="bg-light rounded p-3">
-                                            <h2 class="fw-bold mb-1" id="resTotal">50</h2>
-                                            <span class="text-muted small text-uppercase">Total Slots</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="bg-danger bg-opacity-10 text-danger rounded p-3">
-                                            <h2 class="fw-bold mb-1" id="resOccupied">42</h2>
-                                            <span class="small text-uppercase">Occupied</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="bg-success bg-opacity-10 text-success rounded p-3">
-                                            <h2 class="fw-bold mb-1" id="resFree">8</h2>
-                                            <span class="small text-uppercase">Free Slots</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4 pt-4 border-top">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="fw-bold text-muted small text-uppercase">Estimated Occupancy Rate</span>
-                                        <span class="fw-bold text-danger" id="resRate">84%</span>
-                                    </div>
-                                    <div class="progress" style="height: 12px;">
-                                        <div class="progress-bar bg-danger" id="resBar" style="width: 84%"></div>
-                                    </div>
+                <div class="col-xl-3 col-sm-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small fw-bold text-uppercase">Likely Full</span>
+                                <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2">
+                                    <i class="bi bi-x-circle fs-5"></i>
                                 </div>
                             </div>
-                            
+                            <h2 class="fw-bolder mb-1 text-danger" id="statPredictedFull">--</h2>
+                            <span class="text-muted small">Predicted near / at capacity</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-sm-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small fw-bold text-uppercase">Avg Availability Prob</span>
+                                <div class="bg-info bg-opacity-10 text-info rounded-3 p-2">
+                                    <i class="bi bi-graph-up-arrow fs-5"></i>
+                                </div>
+                            </div>
+                            <h2 class="fw-bolder mb-1 text-info" id="statAverageProb">--%</h2>
+                            <span class="text-muted small">Mean free slot probability</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Model Performance -->
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-white pt-4 px-4 border-bottom-0">
-                    <h6 class="fw-bold m-0">Model Performance (Preview)</h6>
+            <!-- Interactive Predictor & Live Result -->
+            <div class="row g-4 mb-4">
+                <!-- Simulator Form -->
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold m-0"><i class="bi bi-magic me-2 text-primary"></i>Live Model Simulator</h5>
+                                <span class="badge bg-primary bg-opacity-10 text-primary">Pipeline Active</span>
+                            </div>
+                            <p class="text-muted small mb-0">Test the Gradient Boosting model in real-time</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="adminSimForm" onsubmit="event.preventDefault(); runAdminPrediction();">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-muted text-uppercase">Parking Area</label>
+                                    <select class="form-select" id="simArea" required>
+                                        <option value="City Center">City Center</option>
+                                        <option value="Mall" selected>Mall Parking</option>
+                                        <option value="Theatre">Theatre Parking</option>
+                                    </select>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted text-uppercase">Target Date</label>
+                                        <input type="date" class="form-control" id="simDate" required onchange="updateSimWeekendBadge()">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted text-uppercase">Target Time</label>
+                                        <input type="time" class="form-control" id="simTime" value="18:30" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 p-2 bg-light rounded d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="bi bi-calendar-week me-1"></i> Weekend Flag</span>
+                                    <span class="badge bg-secondary" id="simWeekendBadge">Auto: Weekday</span>
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted text-uppercase">Is Holiday?</label>
+                                        <select class="form-select" id="simHoliday">
+                                            <option value="0" selected>No (Regular)</option>
+                                            <option value="1">Yes (Holiday)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted text-uppercase">Weather</label>
+                                        <select class="form-select" id="simWeather">
+                                            <option value="Sunny" selected>Sunny</option>
+                                            <option value="Cloudy">Cloudy</option>
+                                            <option value="Rainy">Rainy</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button type="submit" id="btnSimulate" class="btn btn-primary w-100 py-2 fw-semibold">
+                                    <span id="btnSimSpinner" class="spinner-border spinner-border-sm me-2 d-none"></span>
+                                    <span id="btnSimText"><i class="bi bi-cpu me-2"></i>Run Model Inference</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Simulation Result Card -->
+                <div class="col-lg-7">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold m-0"><i class="bi bi-speedometer me-2 text-primary"></i>Inference Output</h5>
+                            <span class="badge bg-light text-muted border">gradient_boosting_v1</span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column justify-content-center">
+                            
+                            <!-- Placeholder -->
+                            <div id="simPlaceholder" class="text-center py-5 text-muted">
+                                <i class="bi bi-cpu fs-1 mb-2 d-block opacity-25"></i>
+                                <h6 class="fw-bold text-dark">Awaiting Input</h6>
+                                <p class="small text-muted mb-0">Select facility conditions and click "Run Model Inference" to evaluate live probability.</p>
+                            </div>
+
+                            <!-- Live Result Output -->
+                            <div id="simResult" class="d-none">
+                                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                                    <div>
+                                        <span class="text-muted small text-uppercase fw-semibold">Evaluated Facility</span>
+                                        <h3 class="fw-bold text-primary mb-0" id="simResArea">Mall Parking</h3>
+                                        <span class="text-muted small" id="simResDateTime">--</span>
+                                    </div>
+                                    <div id="simResBadge">
+                                        <span class="badge bg-success fs-6 px-3 py-2">Likely Available</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-light rounded-4 p-4 mb-4">
+                                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                        <span class="fw-bold text-muted small text-uppercase">Free Slot Availability Probability</span>
+                                        <span class="fw-bolder fs-2 text-primary" id="simResProb">--%</span>
+                                    </div>
+                                    <div class="progress" style="height: 14px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="simResProgressBar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2 text-muted small">
+                                        <span>High Congestion Risk</span>
+                                        <span>Moderate</span>
+                                        <span>Optimal Free Capacity</span>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 text-center">
+                                    <div class="col-4">
+                                        <div class="border rounded-3 p-3">
+                                            <span class="text-muted small d-block mb-1">Target Class</span>
+                                            <strong class="fs-6" id="simResClass">is_free = 1</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded-3 p-3">
+                                            <span class="text-muted small d-block mb-1">Status</span>
+                                            <strong class="fs-6 text-success" id="simResStatus">Available</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded-3 p-3">
+                                            <span class="text-muted small d-block mb-1">Persisted Record</span>
+                                            <strong class="fs-6 text-primary" id="simResSaved">Saved to DB</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                            <h6 class="fw-bold m-0"><i class="bi bi-pie-chart me-2 text-primary"></i>Predictions by Facility</h6>
+                        </div>
+                        <div class="card-body p-4 d-flex justify-content-center align-items-center" style="min-height: 260px;">
+                            <canvas id="chartAreaDistribution"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                            <h6 class="fw-bold m-0"><i class="bi bi-ui-radios-grid me-2 text-primary"></i>Prediction Outcomes</h6>
+                        </div>
+                        <div class="card-body p-4 d-flex justify-content-center align-items-center" style="min-height: 260px;">
+                            <canvas id="chartOutcomeDistribution"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                            <h6 class="fw-bold m-0"><i class="bi bi-bar-chart me-2 text-primary"></i>Probability Brackets</h6>
+                        </div>
+                        <div class="card-body p-4 d-flex justify-content-center align-items-center" style="min-height: 260px;">
+                            <canvas id="chartProbBrackets"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prediction History Table & Filters -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <h5 class="fw-bold m-0"><i class="bi bi-clock-history me-2 text-primary"></i>Prediction Inquiries History</h5>
+                        <p class="text-muted small mb-0">Complete historical inquiry log from user interactions and administrative simulations</p>
+                    </div>
+                    <span class="badge bg-light text-muted border px-3 py-2" id="historyTotalCount">0 records logged</span>
+                </div>
+                
                 <div class="card-body p-4">
-                    <div class="row g-4 align-items-center">
-                        <div class="col-md-4">
-                            <div class="card bg-light border-0 mb-3">
-                                <div class="card-body p-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium text-muted">Model Type</span>
-                                    <span class="badge bg-secondary">Random Forest Regression</span>
-                                </div>
-                            </div>
-                            <div class="card bg-light border-0 mb-3">
-                                <div class="card-body p-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium text-muted">Training Data</span>
-                                    <span class="badge bg-secondary">--</span>
-                                </div>
-                            </div>
-                            <div class="card bg-light border-0">
-                                <div class="card-body p-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium text-muted">Last Updated</span>
-                                    <span class="badge bg-secondary">--</span>
-                                </div>
-                            </div>
+                    <!-- Filters Bar -->
+                    <div class="row g-2 mb-4 bg-light p-3 rounded-3 align-items-center">
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label small text-muted mb-1">Facility</label>
+                            <select class="form-select form-select-sm" id="filterArea">
+                                <option value="">All Facilities</option>
+                                <option value="1">City Center</option>
+                                <option value="2">Mall Parking</option>
+                                <option value="3">Theatre Parking</option>
+                            </select>
                         </div>
-                        <div class="col-md-8">
-                            <div class="row g-3 text-center mb-4">
-                                <div class="col-4">
-                                    <div class="border rounded p-3">
-                                        <h4 class="fw-bold mb-1">--</h4>
-                                        <span class="text-muted small">MAE</span>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="border rounded p-3">
-                                        <h4 class="fw-bold mb-1">--</h4>
-                                        <span class="text-muted small">RMSE</span>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="border rounded p-3">
-                                        <h4 class="fw-bold mb-1">--</h4>
-                                        <span class="text-muted small">R² Score</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-light rounded p-4 text-center text-muted border border-dashed">
-                                <i class="bi bi-bar-chart fs-1 mb-2 d-block opacity-25"></i>
-                                <span class="small">Actual vs Predicted visualization will appear here in Stage 6</span>
-                            </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label small text-muted mb-1">Start Date</label>
+                            <input type="date" class="form-control form-select-sm" id="filterStartDate">
                         </div>
+                        <div class="col-md-3 col-sm-6">
+                            <label class="form-label small text-muted mb-1">End Date</label>
+                            <input type="date" class="form-control form-select-sm" id="filterEndDate">
+                        </div>
+                        <div class="col-md-3 col-sm-6 d-flex gap-2 align-items-end pt-3 pt-md-0">
+                            <button type="button" class="btn btn-sm btn-primary w-100" onclick="applyHistoryFilters()">
+                                <i class="bi bi-filter me-1"></i> Apply
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetHistoryFilters()">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Parking Facility</th>
+                                    <th>Target Date</th>
+                                    <th>Target Time</th>
+                                    <th>Prediction</th>
+                                    <th>Availability Probability</th>
+                                    <th>Model Version</th>
+                                    <th>Timestamp</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTbody">
+                                <tr>
+                                    <td colspan="9" class="text-center py-4 text-muted">Loading prediction history...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
+                        <span class="text-muted small" id="paginationInfo">Showing 0 to 0 of 0 records</span>
+                        <ul class="pagination pagination-sm mb-0" id="paginationControls">
+                            <!-- Pagination generated by JS -->
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -200,42 +391,435 @@
         </div>
     </main>
 
+    <!-- Details Modal -->
+    <div class="modal fade" id="predictionDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-text me-2 text-primary"></i>Prediction Record Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="modalDetailsBody">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
     <script src="../js/admin.js"></script>
     <script>
+        let chartAreaInstance = null;
+        let chartOutcomeInstance = null;
+        let chartProbInstance = null;
+        let currentPage = 1;
+        const pageLimit = 10;
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Guard session
+            if (!localStorage.getItem('adminLoggedIn')) {
+                window.location.href = 'login.html';
+                return;
+            }
+
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('predDate').value = today;
+            document.getElementById('simDate').value = today;
+            updateSimWeekendBadge();
+
+            // Load initial data
+            loadSummaryAndCharts();
+            loadHistoryTable();
         });
 
-        function simulatePrediction() {
-            document.getElementById('predPlaceholder').classList.add('d-none');
-            document.getElementById('predResult').classList.remove('d-none');
+        function updateSimWeekendBadge() {
+            const dateVal = document.getElementById('simDate').value;
+            if (!dateVal) return;
+            const d = new Date(dateVal + 'T00:00:00');
+            const isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+            const badge = document.getElementById('simWeekendBadge');
+            if (isWeekend) {
+                badge.className = 'badge bg-warning text-dark';
+                badge.innerHTML = '<i class="bi bi-sun me-1"></i> Auto: Weekend';
+            } else {
+                badge.className = 'badge bg-secondary';
+                badge.innerHTML = '<i class="bi bi-briefcase me-1"></i> Auto: Weekday';
+            }
+        }
 
-            const area = document.getElementById('predArea').options[document.getElementById('predArea').selectedIndex].text;
-            const date = document.getElementById('predDate').value;
-            const time = document.getElementById('predTime').value;
+        async function loadSummaryAndCharts() {
+            try {
+                const res = await window.Api.getPredictionSummary();
+                if (res && res.success && res.data) {
+                    const d = res.data;
+                    document.getElementById('statTotalPredictions').textContent = Number(d.total_predictions || 0).toLocaleString();
+                    document.getElementById('statPredictedAvailable').textContent = Number(d.predicted_available || 0).toLocaleString();
+                    document.getElementById('statPredictedFull').textContent = Number(d.predicted_full || 0).toLocaleString();
+                    document.getElementById('statAverageProb').textContent = `${d.average_probability || 0}%`;
 
-            document.getElementById('resArea').textContent = area;
-            document.getElementById('resDateTime').textContent = `Predicted for: ${date} at ${time}`;
+                    renderCharts(d);
+                }
+            } catch (err) {
+                console.error("Failed to load prediction summary:", err);
+            }
+        }
 
-            // Mock values
-            const total = 50;
-            const occupied = Math.floor(Math.random() * (50 - 20) + 20); // random 20-50
-            const free = total - occupied;
-            const rate = Math.round((occupied / total) * 100);
+        function renderCharts(summary) {
+            // 1. Predictions by Area (Doughnut)
+            const areaCtx = document.getElementById('chartAreaDistribution');
+            if (areaCtx && summary.by_area && summary.by_area.length > 0) {
+                const labels = summary.by_area.map(a => a.area_name);
+                const counts = summary.by_area.map(a => a.total);
 
-            document.getElementById('resTotal').textContent = total;
-            document.getElementById('resOccupied').textContent = occupied;
-            document.getElementById('resFree').textContent = free;
-            document.getElementById('resRate').textContent = `${rate}%`;
-            document.getElementById('resBar').style.width = `${rate}%`;
-            
-            const bar = document.getElementById('resBar');
-            bar.className = 'progress-bar';
-            if(rate > 80) bar.classList.add('bg-danger');
-            else if(rate > 50) bar.classList.add('bg-warning');
-            else bar.classList.add('bg-success');
+                if (chartAreaInstance) chartAreaInstance.destroy();
+                chartAreaInstance = new Chart(areaCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // 2. Available vs Full
+            const outcomeCtx = document.getElementById('chartOutcomeDistribution');
+            if (outcomeCtx) {
+                if (chartOutcomeInstance) chartOutcomeInstance.destroy();
+                chartOutcomeInstance = new Chart(outcomeCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Likely Available', 'Likely Full'],
+                        datasets: [{
+                            data: [summary.predicted_available || 0, summary.predicted_full || 0],
+                            backgroundColor: ['#10b981', '#ef4444'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // 3. Probability Brackets
+            const probCtx = document.getElementById('chartProbBrackets');
+            if (probCtx && summary.distribution) {
+                if (chartProbInstance) chartProbInstance.destroy();
+                chartProbInstance = new Chart(probCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['< 50%', '50% - 75%', '> 75%'],
+                        datasets: [{
+                            label: 'Predictions',
+                            data: [
+                                summary.distribution.low_0_50 || 0,
+                                summary.distribution.medium_50_75 || 0,
+                                summary.distribution.high_75_100 || 0
+                            ],
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function runAdminPrediction() {
+            const area = document.getElementById('simArea').value;
+            const date = document.getElementById('simDate').value;
+            const time = document.getElementById('simTime').value;
+            const holiday = parseInt(document.getElementById('simHoliday').value, 10);
+            const weather = document.getElementById('simWeather').value;
+
+            const d = new Date(date + 'T00:00:00');
+            const isWeekend = (d.getDay() === 0 || d.getDay() === 6) ? 1 : 0;
+
+            const payload = {
+                area: area,
+                date: date,
+                time: time.length === 5 ? `${time}:00` : time,
+                is_weekend: isWeekend,
+                is_holiday: holiday,
+                weather: weather
+            };
+
+            const btn = document.getElementById('btnSimulate');
+            const spinner = document.getElementById('btnSimSpinner');
+            const text = document.getElementById('btnSimText');
+
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+            text.textContent = 'Evaluating Model...';
+
+            try {
+                const res = await window.Api.predictAvailability(payload);
+                displayAdminSimResult(res);
+
+                // Refresh summary and history
+                loadSummaryAndCharts();
+                loadHistoryTable();
+            } catch (err) {
+                alert("Simulation failed: " + (err.message || "Unknown error"));
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                text.innerHTML = '<i class="bi bi-cpu me-2"></i>Run Model Inference';
+            }
+        }
+
+        function displayAdminSimResult(res) {
+            document.getElementById('simPlaceholder').classList.add('d-none');
+            document.getElementById('simResult').classList.remove('d-none');
+
+            document.getElementById('simResArea').textContent = `${res.area} Parking`;
+            document.getElementById('simResDateTime').textContent = `Date: ${res.date} | Time: ${res.time}`;
+
+            const isAvailable = res.predicted_is_free === 1;
+            const prob = Math.round(res.probability * 100) / 100;
+
+            const badgeContainer = document.getElementById('simResBadge');
+            const statusEl = document.getElementById('simResStatus');
+            const classEl = document.getElementById('simResClass');
+
+            if (isAvailable) {
+                badgeContainer.innerHTML = '<span class="badge bg-success fs-6 px-3 py-2">Likely Available</span>';
+                statusEl.textContent = 'Available';
+                statusEl.className = 'fs-6 text-success';
+                classEl.textContent = 'is_free = 1';
+            } else {
+                badgeContainer.innerHTML = '<span class="badge bg-danger fs-6 px-3 py-2">Likely Full</span>';
+                statusEl.textContent = 'Full';
+                statusEl.className = 'fs-6 text-danger';
+                classEl.textContent = 'is_free = 0';
+            }
+
+            const probEl = document.getElementById('simResProb');
+            const progressBar = document.getElementById('simResProgressBar');
+            probEl.textContent = `${prob}%`;
+            progressBar.style.width = `${prob}%`;
+
+            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+            if (prob >= 75) {
+                progressBar.classList.add('bg-success');
+                probEl.className = 'fw-bolder fs-2 text-success';
+            } else if (prob >= 50) {
+                progressBar.classList.add('bg-warning');
+                probEl.className = 'fw-bolder fs-2 text-warning';
+            } else {
+                progressBar.classList.add('bg-danger');
+                probEl.className = 'fw-bolder fs-2 text-danger';
+            }
+        }
+
+        async function loadHistoryTable() {
+            const areaId = document.getElementById('filterArea').value;
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+
+            const params = {
+                page: currentPage,
+                limit: pageLimit
+            };
+            if (areaId) params.area_id = areaId;
+            if (startDate) params.start_date = startDate;
+            if (endDate) params.end_date = endDate;
+
+            const tbody = document.getElementById('historyTbody');
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading history records...</td></tr>';
+
+            try {
+                const res = await window.Api.getPredictionHistory(params);
+                if (res && res.success) {
+                    renderHistoryRows(res.items || []);
+                    renderPagination(res);
+                    document.getElementById('historyTotalCount').textContent = `${Number(res.total || 0).toLocaleString()} records logged`;
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No prediction history found.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Failed to load history:", err);
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger">Failed to load prediction records.</td></tr>';
+            }
+        }
+
+        function renderHistoryRows(items) {
+            const tbody = document.getElementById('historyTbody');
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No matching prediction records found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => {
+                const isAvail = item.predicted_is_free === 1;
+                const badge = isAvail
+                    ? '<span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle me-1"></i>Available</span>'
+                    : '<span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle me-1"></i>Full</span>';
+
+                let probClass = 'text-success';
+                if (item.prediction_probability < 50) probClass = 'text-danger';
+                else if (item.prediction_probability < 75) probClass = 'text-warning';
+
+                const createdDate = item.created_at ? new Date(item.created_at).toLocaleString() : '--';
+
+                return `
+                    <tr>
+                        <td class="fw-medium text-muted">#${item.id}</td>
+                        <td class="fw-semibold text-primary">${item.area_name || `Area ${item.area_id}`}</td>
+                        <td>${item.prediction_date}</td>
+                        <td>${item.prediction_time}</td>
+                        <td>${badge}</td>
+                        <td class="fw-bold ${probClass}">${item.prediction_probability}%</td>
+                        <td><span class="badge bg-light text-dark border">${item.model_version || 'v1'}</span></td>
+                        <td class="small text-muted">${createdDate}</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" onclick="openDetailsModal(${item.id})">
+                                <i class="bi bi-eye"></i> Details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(res) {
+            const total = res.total || 0;
+            const page = res.page || 1;
+            const totalPages = res.total_pages || 1;
+            const startIdx = total === 0 ? 0 : (page - 1) * pageLimit + 1;
+            const endIdx = Math.min(page * pageLimit, total);
+
+            document.getElementById('paginationInfo').textContent = `Showing ${startIdx} to ${endIdx} of ${total} records`;
+
+            const ul = document.getElementById('paginationControls');
+            let html = '';
+
+            html += `<li class="page-item ${page <= 1 ? 'disabled' : ''}">
+                <button class="page-link" onclick="goToPage(${page - 1})">Prev</button>
+            </li>`;
+
+            for (let p = Math.max(1, page - 2); p <= Math.min(totalPages, page + 2); p++) {
+                html += `<li class="page-item ${p === page ? 'active' : ''}">
+                    <button class="page-link" onclick="goToPage(${p})">${p}</button>
+                </li>`;
+            }
+
+            html += `<li class="page-item ${page >= totalPages ? 'disabled' : ''}">
+                <button class="page-link" onclick="goToPage(${page + 1})">Next</button>
+            </li>`;
+
+            ul.innerHTML = html;
+        }
+
+        function goToPage(p) {
+            currentPage = p;
+            loadHistoryTable();
+        }
+
+        function applyHistoryFilters() {
+            currentPage = 1;
+            loadHistoryTable();
+        }
+
+        function resetHistoryFilters() {
+            document.getElementById('filterArea').value = '';
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            currentPage = 1;
+            loadHistoryTable();
+        }
+
+        async function openDetailsModal(id) {
+            const modalEl = document.getElementById('predictionDetailsModal');
+            const modal = new bootstrap.Modal(modalEl);
+            const body = document.getElementById('modalDetailsBody');
+            body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+            modal.show();
+
+            try {
+                const rec = await window.Api.getPredictionRecord(id);
+                const isAvail = rec.predicted_is_free === 1;
+                const statusBadge = isAvail
+                    ? '<span class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Likely Available</span>'
+                    : '<span class="badge bg-danger fs-6"><i class="bi bi-x-circle me-1"></i>Likely Full</span>';
+
+                body.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h4 class="fw-bold text-primary mb-0">${rec.area_name}</h4>
+                            <span class="text-muted small">Record #${rec.id}</span>
+                        </div>
+                        <div>${statusBadge}</div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">Target Date</span>
+                                <strong class="fs-6">${rec.prediction_date}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">Target Time</span>
+                                <strong class="fs-6">${rec.prediction_time}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">Availability Probability</span>
+                                <strong class="fs-5 text-primary">${rec.prediction_probability}%</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <span class="text-muted small d-block">Predicted Target</span>
+                                <strong class="fs-6">is_free = ${rec.predicted_is_free}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 border rounded-3 small">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Model Engine</span>
+                            <span class="fw-semibold">${rec.model_version || 'gradient_boosting_v1'}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Evaluation Timestamp</span>
+                            <span>${rec.created_at ? new Date(rec.created_at).toLocaleString() : '--'}</span>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                body.innerHTML = `<div class="alert alert-danger mb-0">Failed to load details: ${err.message}</div>`;
+            }
         }
     </script>
 </body>

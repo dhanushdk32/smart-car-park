@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Availability - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/user.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="../index.html">
+                <i class="bi bi-p-square-fill me-2"></i>SmartPark
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="parking.html">Parking Areas</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-semibold text-primary" href="predictions.html">Future Availability</a></li>
+                    <li class="nav-item"><a class="nav-link" href="bookings.html">My Bookings</a></li>
+                </ul>
+                <div class="d-flex" id="nav-login-links">
+                    <a href="login.html" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="register.html" class="btn btn-primary">Register</a>
+                </div>
+                <div class="d-none align-items-center" id="nav-user-links">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i> <span id="userName">My Account</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <li><a class="dropdown-item" href="dashboard.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="App.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <div class="bg-primary text-white py-5 mb-5">
+        <div class="container text-center">
+            <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill mb-3 fw-medium">
+                <i class="bi bi-cpu me-1"></i> Machine Learning Powered
+            </span>
+            <h1 class="fw-bold mb-2">Parking Availability Prediction</h1>
+            <p class="lead opacity-75 mb-0 mx-auto" style="max-width: 650px;">
+                Check the likelihood of free parking slots at any facility for a future date and time based on historical patterns.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+        <!-- Error Alert -->
+        <div id="alertContainer"></div>
+
+        <div class="row g-4">
+            <!-- Prediction Form Column -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+                    <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                        <h5 class="fw-bold m-0"><i class="bi bi-sliders me-2 text-primary"></i>Check Forecast</h5>
+                        <p class="text-muted small mb-0">Select your destination and intended arrival</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="predictionForm" onsubmit="event.preventDefault(); handlePredictionSubmit();">
+                            <!-- Area Selection -->
+                            <div class="mb-3">
+                                <label for="predArea" class="form-label small fw-semibold text-muted text-uppercase">Parking Area</label>
+                                <select class="form-select" id="predArea" required>
+                                    <option value="City Center">City Center Parking</option>
+                                    <option value="Mall" selected>Mall Parking</option>
+                                    <option value="Theatre">Theatre Parking</option>
+                                </select>
+                            </div>
+
+                            <!-- Date & Time -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label for="predDate" class="form-label small fw-semibold text-muted text-uppercase">Date</label>
+                                    <input type="date" class="form-control" id="predDate" required onchange="handleDateChange()">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="predTime" class="form-label small fw-semibold text-muted text-uppercase">Arrival Time</label>
+                                    <input type="time" class="form-control" id="predTime" value="18:30" required>
+                                </div>
+                            </div>
+
+                            <!-- Weekend indicator (auto calculated) -->
+                            <div class="mb-3 p-2 bg-light rounded d-flex justify-content-between align-items-center">
+                                <span class="small text-muted"><i class="bi bi-calendar-week me-1"></i> Day Type</span>
+                                <span class="badge bg-secondary" id="weekendBadge">Weekday</span>
+                            </div>
+
+                            <!-- Holiday selection -->
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-muted text-uppercase">Is this a public holiday?</label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" class="btn-check" name="holidayRadio" id="holidayNo" value="0" checked>
+                                    <label class="btn btn-outline-secondary w-50 py-2 small fw-medium" for="holidayNo">
+                                        <i class="bi bi-x-circle me-1"></i> No
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="holidayRadio" id="holidayYes" value="1">
+                                    <label class="btn btn-outline-primary w-50 py-2 small fw-medium" for="holidayYes">
+                                        <i class="bi bi-check-circle me-1"></i> Yes, Holiday
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Weather condition -->
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-muted text-uppercase">Expected Weather</label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" class="btn-check" name="weatherRadio" id="weatherSunny" value="Sunny" checked>
+                                    <label class="btn btn-outline-warning w-100 py-2 small fw-medium text-dark" for="weatherSunny">
+                                        <i class="bi bi-sun-fill text-warning me-1"></i> Sunny
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="weatherRadio" id="weatherCloudy" value="Cloudy">
+                                    <label class="btn btn-outline-secondary w-100 py-2 small fw-medium" for="weatherCloudy">
+                                        <i class="bi bi-clouds-fill me-1"></i> Cloudy
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="weatherRadio" id="weatherRainy" value="Rainy">
+                                    <label class="btn btn-outline-info w-100 py-2 small fw-medium text-dark" for="weatherRainy">
+                                        <i class="bi bi-cloud-rain-fill text-info me-1"></i> Rainy
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" id="btnPredict" class="btn btn-primary w-100 py-2 fw-semibold">
+                                <span id="btnPredictSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                                <span id="btnPredictText"><i class="bi bi-cpu me-2"></i>Check Availability</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prediction Result Column -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+                    <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold m-0"><i class="bi bi-clipboard-data me-2 text-primary"></i>Availability Prediction</h5>
+                        <span class="badge bg-light text-muted border" id="modelVersionBadge">Gradient Boosting v1</span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column justify-content-center">
+                        
+                        <!-- Initial Placeholder State -->
+                        <div id="resultPlaceholder" class="text-center py-5 text-muted">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-4 mb-3">
+                                <i class="bi bi-magic fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">Ready to Forecast</h5>
+                            <p class="small text-muted mx-auto" style="max-width: 420px;">
+                                Fill in the parking facility and your scheduled arrival time on the left, then click <strong>Check Availability</strong> to generate an ML-driven forecast.
+                            </p>
+                        </div>
+
+                        <!-- Active Prediction Result Card -->
+                        <div id="resultCard" class="d-none">
+                            <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                                <div>
+                                    <span class="text-muted small text-uppercase fw-semibold">Facility</span>
+                                    <h3 class="fw-bold text-primary mb-0" id="resAreaName">Mall Parking</h3>
+                                    <div class="text-muted small mt-1">
+                                        <i class="bi bi-calendar-event me-1"></i><span id="resDate">--</span> &nbsp;|&nbsp;
+                                        <i class="bi bi-clock me-1"></i><span id="resTime">--</span>
+                                    </div>
+                                </div>
+                                <div id="resStatusBadge">
+                                    <span class="badge bg-success fs-6 px-3 py-2"><i class="bi bi-check-circle me-1"></i> Likely Available</span>
+                                </div>
+                            </div>
+
+                            <!-- Probability Meter -->
+                            <div class="p-4 bg-light rounded-4 mb-4">
+                                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <span class="fw-bold text-muted small text-uppercase">Availability Probability</span>
+                                    <span class="fw-bolder fs-2 text-primary" id="resProbText">0%</span>
+                                </div>
+                                <div class="progress" style="height: 14px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="resProgressBar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2 text-muted small">
+                                    <span>0% Low Chance</span>
+                                    <span>50% Moderate</span>
+                                    <span>100% High Chance</span>
+                                </div>
+                            </div>
+
+                            <!-- Educational Disclaimer -->
+                            <div class="alert alert-info border-0 rounded-3 small mb-4">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-info-circle-fill fs-5 me-2 flex-shrink-0 text-info"></i>
+                                    <div>
+                                        <strong>Area-level prediction:</strong> Estimates whether this parking area is likely to have at least one free slot based on historical parking patterns. Actual slot availability may vary.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Primary Action Button: Check Live Slots -->
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success btn-lg py-3 fw-bold" id="btnCheckLiveSlots" onclick="navigateToLiveSlots()">
+                                    <i class="bi bi-grid-3x3 me-2"></i>Check Live Slots & Book Now
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions for Customer -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold m-0"><i class="bi bi-clock-history me-2 text-primary"></i>Your Recent Checks</h6>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearRecentChecks()"><i class="bi bi-trash me-1"></i>Clear History</button>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light text-muted small text-uppercase">
+                                    <tr>
+                                        <th>Parking Area</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Prediction</th>
+                                        <th>Probability</th>
+                                        <th>Checked At</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentChecksTbody">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">No recent checks found. Check availability above to save searches.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white py-4 border-top">
+        <div class="container text-center">
+            <p class="text-muted mb-0">&copy; 2026 SmartPark Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        // Mapping from area name to area ID for linking to slots.html
+        const AREA_MAP = {
+            "City Center": 1,
+            "Mall": 2,
+            "Theatre": 3
+        };
+
+        let currentPrediction = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('predDate');
+            dateInput.min = today;
+            dateInput.value = today;
+            handleDateChange();
+
+            // Check URL parameters for preselected area
+            const urlParams = new URLSearchParams(window.location.search);
+            const areaParam = urlParams.get('area');
+            if (areaParam) {
+                const select = document.getElementById('predArea');
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value.toLowerCase() === areaParam.toLowerCase() ||
+                        select.options[i].text.toLowerCase().includes(areaParam.toLowerCase())) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Load recent checks from localStorage
+            loadRecentChecks();
+
+            // Sync auth state if logged in
+            syncAuthNav();
+        });
+
+        function syncAuthNav() {
+            const token = localStorage.getItem('access_token');
+            const userData = localStorage.getItem('user_data');
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    document.getElementById('nav-login-links').classList.add('d-none');
+                    const userLinks = document.getElementById('nav-user-links');
+                    userLinks.classList.remove('d-none');
+                    userLinks.classList.add('d-flex');
+                    document.getElementById('userName').textContent = user.full_name || 'My Account';
+                } catch(e) {}
+            }
+        }
+
+        function handleDateChange() {
+            const dateVal = document.getElementById('predDate').value;
+            if (!dateVal) return;
+
+            const selectedDate = new Date(dateVal + 'T00:00:00');
+            const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
+            const badge = document.getElementById('weekendBadge');
+            if (isWeekend) {
+                badge.className = 'badge bg-warning text-dark';
+                badge.innerHTML = '<i class="bi bi-sun me-1"></i> Weekend (Sat/Sun)';
+            } else {
+                badge.className = 'badge bg-secondary';
+                badge.innerHTML = '<i class="bi bi-briefcase me-1"></i> Weekday';
+            }
+        }
+
+        async function handlePredictionSubmit() {
+            showAlert('', false);
+
+            const area = document.getElementById('predArea').value;
+            const date = document.getElementById('predDate').value;
+            const time = document.getElementById('predTime').value;
+            const holiday = parseInt(document.querySelector('input[name="holidayRadio"]:checked').value);
+            const weather = document.querySelector('input[name="weatherRadio"]:checked').value;
+
+            if (!date || !time) {
+                showAlert('Please select both a valid date and time.', 'danger');
+                return;
+            }
+
+            // Calculate is_weekend automatically
+            const selectedDate = new Date(date + 'T00:00:00');
+            const dayOfWeek = selectedDate.getDay();
+            const is_weekend = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : 0;
+
+            const payload = {
+                area: area,
+                date: date,
+                time: time.length === 5 ? `${time}:00` : time,
+                is_weekend: is_weekend,
+                is_holiday: holiday,
+                weather: weather
+            };
+
+            // Loading state
+            setLoading(true);
+
+            try {
+                const res = await window.Api.predictAvailability(payload);
+                currentPrediction = {
+                    ...res,
+                    requested_area: area,
+                    requested_date: date,
+                    requested_time: time
+                };
+
+                displayPredictionResult(res);
+                saveRecentCheck(res);
+            } catch (err) {
+                console.error("Prediction failed:", err);
+                showAlert(err.message || 'Unable to check availability right now. Please try again.', 'danger');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function displayPredictionResult(res) {
+            document.getElementById('resultPlaceholder').classList.add('d-none');
+            const resultCard = document.getElementById('resultCard');
+            resultCard.classList.remove('d-none');
+
+            document.getElementById('resAreaName').textContent = `${res.area} Parking`;
+            
+            // Format date nicely
+            const dateObj = new Date(res.date + 'T00:00:00');
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('resDate').textContent = formattedDate;
+            document.getElementById('resTime').textContent = formatTimeTo12Hour(res.time);
+
+            const isAvailable = res.predicted_is_free === 1;
+            const prob = Math.round(res.probability * 100) / 100;
+
+            // Status badge
+            const badgeContainer = document.getElementById('resStatusBadge');
+            if (isAvailable) {
+                badgeContainer.innerHTML = '<span class="badge bg-success fs-6 px-3 py-2"><i class="bi bi-check-circle me-1"></i> Likely Available</span>';
+            } else {
+                badgeContainer.innerHTML = '<span class="badge bg-danger fs-6 px-3 py-2"><i class="bi bi-x-circle me-1"></i> Likely Full</span>';
+            }
+
+            // Probability meter
+            const probText = document.getElementById('resProbText');
+            const progressBar = document.getElementById('resProgressBar');
+            probText.textContent = `${prob}%`;
+            progressBar.style.width = `${prob}%`;
+
+            progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+            if (prob >= 75) {
+                progressBar.classList.add('bg-success');
+                probText.className = 'fw-bolder fs-2 text-success';
+            } else if (prob >= 50) {
+                progressBar.classList.add('bg-warning');
+                probText.className = 'fw-bolder fs-2 text-warning';
+            } else {
+                progressBar.classList.add('bg-danger');
+                probText.className = 'fw-bolder fs-2 text-danger';
+            }
+
+            if (res.model_version) {
+                document.getElementById('modelVersionBadge').textContent = res.model_version;
+            }
+        }
+
+        function navigateToLiveSlots() {
+            if (!currentPrediction) return;
+            const areaName = currentPrediction.area || document.getElementById('predArea').value;
+            const areaId = AREA_MAP[areaName] || 1;
+            const date = currentPrediction.date || document.getElementById('predDate').value;
+            const time = currentPrediction.time ? currentPrediction.time.substring(0, 5) : '18:00';
+
+            // Navigate directly to slots.html in the existing live booking workflow
+            window.location.href = `slots.html?area=${areaId}&date=${date}&time=${time}`;
+        }
+
+        function formatTimeTo12Hour(timeStr) {
+            if (!timeStr) return '--';
+            const parts = timeStr.split(':');
+            let hours = parseInt(parts[0], 10);
+            const minutes = parts[1] || '00';
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 becomes 12
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function setLoading(isLoading) {
+            const btn = document.getElementById('btnPredict');
+            const spinner = document.getElementById('btnPredictSpinner');
+            const text = document.getElementById('btnPredictText');
+
+            if (isLoading) {
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                text.textContent = 'Checking availability...';
+            } else {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                text.innerHTML = '<i class="bi bi-cpu me-2"></i>Check Availability';
+            }
+        }
+
+        function showAlert(msg, type = 'danger') {
+            const container = document.getElementById('alertContainer');
+            if (!msg) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${msg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        // --- Recent Searches Local Storage ---
+        function saveRecentCheck(item) {
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem('user_recent_predictions') || '[]');
+            } catch(e) { list = []; }
+
+            list.unshift({
+                area: item.area,
+                date: item.date,
+                time: item.time,
+                prediction: item.prediction,
+                probability: item.probability,
+                checked_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            // Keep maximum 5 recent items
+            list = list.slice(0, 5);
+            localStorage.setItem('user_recent_predictions', JSON.stringify(list));
+            loadRecentChecks();
+        }
+
+        function loadRecentChecks() {
+            let list = [];
+            try {
+                list = JSON.parse(localStorage.getItem('user_recent_predictions') || '[]');
+            } catch(e) { list = []; }
+
+            const tbody = document.getElementById('recentChecksTbody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No recent checks found. Check availability above to save searches.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(item => {
+                const isAvail = item.prediction === 'Available';
+                const badge = isAvail 
+                    ? '<span class="badge bg-success bg-opacity-10 text-success">Likely Available</span>'
+                    : '<span class="badge bg-danger bg-opacity-10 text-danger">Likely Full</span>';
+                
+                const areaId = AREA_MAP[item.area] || 1;
+
+                return `
+                    <tr>
+                        <td class="fw-semibold text-primary">${item.area}</td>
+                        <td>${item.date}</td>
+                        <td>${formatTimeTo12Hour(item.time)}</td>
+                        <td>${badge}</td>
+                        <td class="fw-bold">${item.probability}%</td>
+                        <td class="text-muted small">${item.checked_at || 'Just now'}</td>
+                        <td>
+                            <a href="slots.html?area=${areaId}&date=${item.date}&time=${item.time ? item.time.substring(0, 5) : '18:00'}" class="btn btn-sm btn-outline-primary">
+                                Check Slots
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function clearRecentChecks() {
+            localStorage.removeItem('user_recent_predictions');
+            loadRecentChecks();
+        }
+    </script>
+</body>
+</html>

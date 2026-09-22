@@ -65,3 +65,28 @@ class PaginatedPredictionsOut(BaseModel):
     page: int
     limit: int
     total_pages: int
+
+class AreaPredictionStat(BaseModel):
+    area_id: int
+    area_name: str
+    total: int
+    available: int
+    full: int
+
+class ProbabilityDistribution(BaseModel):
+    low_0_50: int
+    medium_50_75: int
+    high_75_100: int
+
+class PredictionSummaryData(BaseModel):
+    total_predictions: int
+    predicted_available: int
+    predicted_full: int
+    average_probability: float
+    by_area: List[AreaPredictionStat]
+    distribution: ProbabilityDistribution
+
+class PredictionSummaryOut(BaseModel):
+    success: bool = True
+    data: PredictionSummaryData
+

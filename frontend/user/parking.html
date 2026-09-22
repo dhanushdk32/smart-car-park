@@ -23,6 +23,7 @@
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
                     <li class="nav-item"><a class="nav-link active" href="parking.html">Parking</a></li>
+                    <li class="nav-item"><a class="nav-link" href="predictions.html">Future Availability</a></li>
                     <li class="nav-item"><a class="nav-link" href="bookings.html">My Bookings</a></li>
                 </ul>
                 <div class="d-flex" id="nav-login-links">
@@ -150,7 +151,12 @@
                                         <div class="text-muted small">Rate per hour</div>
                                         <div class="fw-bold text-primary fs-4">₹${area.pricePerHour}</div>
                                     </div>
-                                    <a href="slots.html?area=${area.id}" class="btn btn-primary px-4 py-2">Select Slot</a>
+                                    <div class="d-flex gap-2">
+                                        <a href="predictions.html?area=${encodeURIComponent(area.name)}" class="btn btn-outline-primary px-3 py-2" title="Check AI availability forecast">
+                                            <i class="bi bi-cpu me-1"></i>Forecast
+                                        </a>
+                                        <a href="slots.html?area=${area.id}" class="btn btn-primary px-3 py-2">Select Slot</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

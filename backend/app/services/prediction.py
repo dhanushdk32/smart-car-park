@@ -6,7 +6,7 @@ from datetime import date, time
 import joblib
 import pandas as pd
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, desc
+from sqlalchemy import and_, desc, func
 from fastapi import HTTPException
 
 from ..models.prediction import Prediction
@@ -59,18 +59,23 @@ class PredictionService:
 
         # Feature derivation
         # Python date.weekday() maps Monday=0, Tuesday=1, ..., Sunday=6
+        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        day_number = req.date.weekday()
+        day_of_week = day_names[day_number]
+        month = req.date.month
         hour = req.time.hour
         minute = req.time.minute
-        day_number = req.date.weekday()
         is_weekend = int(req.is_weekend)
         is_holiday = int(req.is_holiday)
 
         # Prepare DataFrame matching the exact pipeline requirements
         feature_dict = {
             "area": [req.area],
+            "day_of_week": [day_of_week],
+            "day_number": [day_number],
+            "month": [month],
             "hour": [hour],
             "minute": [minute],
-            "day_number": [day_number],
             "is_weekend": [is_weekend],
             "is_holiday": [is_holiday],
             "weather": [req.weather]
@@ -217,3 +222,62 @@ class PredictionService:
             "model_version": pred.model_version,
             "created_at": pred.created_at
         }
+
+    @staticmethod
+    def get_summary(db: Session) -> Dict[str, Any]:
+        """
+        Calculate aggregated metrics and distribution data for admin ML dashboard.
+        """
+        total = db.query(Prediction).count()
+        if total == 0:
+            return {
+                "total_predictions": 0,
+                "predicted_available": 0,
+                "predicted_full": 0,
+                "average_probability": 0.0,
+                "by_area": [],
+                "distribution": {
+                    "low_0_50": 0,
+                    "medium_50_75": 0,
+                    "high_75_100": 0
+                }
+            }
+
+        available_count = db.query(Prediction).filter(Prediction.predicted_is_free == 1).count()
+        full_count = total - available_count
+
+        avg_prob_res = db.query(func.avg(Prediction.prediction_probability)).scalar()
+        avg_prob = round(float(avg_prob_res), 2) if avg_prob_res else 0.0
+
+        # By area
+        areas = db.query(ParkingArea).all()
+        by_area = []
+        for a in areas:
+            area_total = db.query(Prediction).filter(Prediction.area_id == a.id).count()
+            area_avail = db.query(Prediction).filter(Prediction.area_id == a.id, Prediction.predicted_is_free == 1).count()
+            by_area.append({
+                "area_id": a.id,
+                "area_name": a.name,
+                "total": area_total,
+                "available": area_avail,
+                "full": area_total - area_avail
+            })
+
+        # Probability distribution
+        low_count = db.query(Prediction).filter(Prediction.prediction_probability < 50.0).count()
+        med_count = db.query(Prediction).filter(and_(Prediction.prediction_probability >= 50.0, Prediction.prediction_probability < 75.0)).count()
+        high_count = db.query(Prediction).filter(Prediction.prediction_probability >= 75.0).count()
+
+        return {
+            "total_predictions": total,
+            "predicted_available": available_count,
+            "predicted_full": full_count,
+            "average_probability": avg_prob,
+            "by_area": by_area,
+            "distribution": {
+                "low_0_50": low_count,
+                "medium_50_75": med_count,
+                "high_75_100": high_count
+            }
+        }
+

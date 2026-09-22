@@ -293,6 +293,33 @@ const Api = {
 
     getOccupancyComparison: async function() {
         return await this.request('/occupancy/comparison');
+    },
+
+    // --- ML Prediction APIs ---
+    predictAvailability: async function(predictionData) {
+        return await this.request('/predictions/availability', {
+            method: 'POST',
+            body: predictionData
+        });
+    },
+
+    getPredictionHistory: async function(params = {}) {
+        const cleanParams = {};
+        Object.keys(params).forEach(key => {
+            if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                cleanParams[key] = params[key];
+            }
+        });
+        const q = new URLSearchParams(cleanParams).toString();
+        return await this.request(`/predictions/history${q ? '?' + q : ''}`);
+    },
+
+    getPredictionRecord: async function(id) {
+        return await this.request(`/predictions/${id}`);
+    },
+
+    getPredictionSummary: async function() {
+        return await this.request('/predictions/summary');
     }
 };
 

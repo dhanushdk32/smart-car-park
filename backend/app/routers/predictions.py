@@ -8,7 +8,8 @@ from ..schemas.prediction import (
     PredictionRequest,
     PredictionResponse,
     PredictionHistoryItem,
-    PaginatedPredictionsOut
+    PaginatedPredictionsOut,
+    PredictionSummaryOut
 )
 from ..services.prediction import PredictionService
 
@@ -25,6 +26,16 @@ def predict_availability(
     Persists the prediction result into the predictions database table.
     """
     return PredictionService.predict_availability(db=db, req=request)
+
+@router.get("/summary", response_model=PredictionSummaryOut)
+def get_prediction_summary(
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieve aggregated prediction metrics and outcome distributions for the ML dashboard.
+    """
+    data = PredictionService.get_summary(db=db)
+    return {"success": True, "data": data}
 
 @router.get("/history", response_model=PaginatedPredictionsOut)
 def get_prediction_history(
