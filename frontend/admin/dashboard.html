@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/admin.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="px-4 mb-4">
+            <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
+            <span class="text-muted small fw-medium">Admin Portal</span>
+        </div>
+
+        <div class="list-group list-group-flush border-none">
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+            
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-geo-alt me-2"></i> Parking Areas
+            </a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-grid-3x3 me-2"></i> Parking Slots
+            </a>
+            
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-ticket-perforated me-2"></i> Bookings
+            </a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-people me-2"></i> Users
+            </a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-credit-card me-2"></i> Payments
+            </a>
+            
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-graph-up me-2"></i> Occupancy Analytics
+            </a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0">
+                <i class="bi bi-cpu me-2"></i> ML Predictions
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main pb-5">
+        <!-- Top Navbar -->
+        <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-light d-md-none" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <div class="d-none d-md-block fw-medium text-muted">
+                <span id="currentDate"></span>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0">Dashboard Overview</h3>
+                <button class="btn btn-primary btn-sm" onclick="loadDashboardData()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh Data</button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card admin-stat-card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase fw-bold mb-1">Total Users</p>
+                                    <h2 class="fw-bold m-0" id="kpi-total-users">--</h2>
+                                </div>
+                                <i class="bi bi-people stat-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card admin-stat-card border-0 shadow-sm h-100 warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase fw-bold mb-1">Parking Areas</p>
+                                    <h2 class="fw-bold m-0" id="kpi-total-areas">--</h2>
+                                </div>
+                                <i class="bi bi-geo-alt stat-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card admin-stat-card border-0 shadow-sm h-100 info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase fw-bold mb-1">Today's Bookings</p>
+                                    <h2 class="fw-bold m-0" id="kpi-today-bookings">--</h2>
+                                </div>
+                                <i class="bi bi-ticket-perforated stat-icon text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card admin-stat-card border-0 shadow-sm h-100 success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small text-uppercase fw-bold mb-1">Today's Revenue</p>
+                                    <h2 class="fw-bold m-0" id="kpi-today-revenue">₹0</h2>
+                                </div>
+                                <i class="bi bi-currency-rupee stat-icon text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Slot Status -->
+            <div class="card shadow-sm border-0 mb-4 rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold m-0">Live System Status</h5>
+                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-circle-fill me-1 small"></i>Live Data</span>
+                    </div>
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded-3">
+                                <h3 class="fw-bold mb-1" id="kpi-total-slots">--</h3>
+                                <span class="text-muted small text-uppercase fw-medium">Total Slots</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-success bg-opacity-10 text-success rounded-3">
+                                <h3 class="fw-bold mb-1" id="kpi-available-slots">--</h3>
+                                <span class="small text-uppercase fw-medium">Available</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3">
+                                <h3 class="fw-bold mb-1" id="kpi-occupied-slots">--</h3>
+                                <span class="small text-uppercase fw-medium">Occupied</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 h-100 rounded-4">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+                            <h6 class="fw-bold m-0">Today's Occupancy Trend</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="chart-container" style="min-height: 250px;">
+                                <canvas id="occupancyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 h-100 rounded-4">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+                            <h6 class="fw-bold m-0">Live Occupancy by Area</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="areaComparisonChart"></canvas>
+                            </div>
+                            <div class="text-center mt-3 text-muted small">Current live occupancy distribution</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+                            <h6 class="fw-bold m-0">Revenue (Last 7 Days)</h6>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings and Payments Section -->
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold m-0">Recent Bookings</h6>
+                            <a href="bookings.html" class="text-primary small text-decoration-none fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Reference</th>
+                                            <th>User / Car</th>
+                                            <th>Area & Slot</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-bookings-tbody">
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Loading recent bookings...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold m-0">Recent Payments</h6>
+                            <a href="payments.html" class="text-primary small text-decoration-none fw-medium">View All <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Payment ID</th>
+                                            <th>User</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-payments-tbody">
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Loading recent payments...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="../js/charts.js"></script>
+    <script>
+        async function loadDashboardData() {
+            try {
+                const res = await window.Api.getAdminDashboard();
+                if (res && res.success && res.data) {
+                    const k = res.data.kpis;
+                    document.getElementById('kpi-total-users').textContent = k.total_users || 0;
+                    document.getElementById('kpi-total-areas').textContent = k.total_areas || 0;
+                    document.getElementById('kpi-today-bookings').textContent = k.today_bookings || 0;
+                    document.getElementById('kpi-today-revenue').textContent = `₹${Number(k.today_revenue || 0).toLocaleString()}`;
+                    
+                    document.getElementById('kpi-total-slots').textContent = k.total_slots || 0;
+                    document.getElementById('kpi-available-slots').textContent = k.available_slots || 0;
+                    document.getElementById('kpi-occupied-slots').textContent = k.booked_slots || 0;
+
+                    // Render recent bookings
+                    const bBody = document.getElementById('recent-bookings-tbody');
+                    if (res.data.recent_bookings && res.data.recent_bookings.length > 0) {
+                        bBody.innerHTML = res.data.recent_bookings.map(b => {
+                            let badgeClass = 'bg-primary';
+                            if (b.status === 'Confirmed') badgeClass = 'bg-success';
+                            if (b.status === 'Completed') badgeClass = 'bg-info';
+                            if (b.status === 'Cancelled') badgeClass = 'bg-danger';
+
+                            return `
+                                <tr>
+                                    <td class="ps-4 font-monospace small fw-bold">${b.booking_reference}</td>
+                                    <td>
+                                        <div class="fw-medium">${b.user_name}</div>
+                                        <small class="text-muted">${b.car_number}</small>
+                                    </td>
+                                    <td>
+                                        <div>${b.area_name}</div>
+                                        <small class="badge bg-light text-dark border">Slot ${b.slot_number}</small>
+                                    </td>
+                                    <td><span class="badge ${badgeClass} bg-opacity-10 text-${badgeClass.replace('bg-', '')}">${b.status}</span></td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        bBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No recent bookings found.</td></tr>';
+                    }
+
+                    // Render recent payments
+                    const pBody = document.getElementById('recent-payments-tbody');
+                    if (res.data.recent_payments && res.data.recent_payments.length > 0) {
+                        pBody.innerHTML = res.data.recent_payments.map(p => {
+                            let badgeClass = p.payment_status === 'Success' ? 'bg-success text-success' : (p.payment_status === 'Failed' ? 'bg-danger text-danger' : 'bg-warning text-warning');
+                            return `
+                                <tr>
+                                    <td class="ps-4 font-monospace small fw-bold">${p.razorpay_payment_id}</td>
+                                    <td>
+                                        <div class="fw-medium">${p.user_name}</div>
+                                        <small class="text-muted">${p.payment_method}</small>
+                                    </td>
+                                    <td class="fw-bold">₹${p.amount}</td>
+                                    <td><span class="badge ${badgeClass} bg-opacity-10">${p.payment_status}</span></td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        pBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No recent payments found.</td></tr>';
+                    }
+
+                    // Render charts with real data
+                    if (window.AppCharts) {
+                        window.AppCharts.initDashboardCharts(res.data);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load dashboard data:", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateStr = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('currentDate').textContent = dateStr;
+            
+            // Check admin auth & load data
+            if (window.AppAdmin.checkAuth()) {
+                loadDashboardData();
+            }
+        });
+    </script>
+</body>
+</html>

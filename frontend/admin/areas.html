@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Areas - Admin - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/admin.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="px-4 mb-4">
+            <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
+            <span class="text-muted small fw-medium">Admin Portal</span>
+        </div>
+        <div class="list-group list-group-flush border-none">
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+        </div>
+    </aside>
+
+    <main class="admin-main pb-5">
+        <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <h5 class="fw-bold m-0 d-none d-md-block">Parking Areas</h5>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white pt-4 px-4 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h6 class="fw-bold m-0">All Parking Areas</h6>
+                    <button class="btn btn-primary btn-sm" onclick="openAddAreaModal()"><i class="bi bi-plus-lg me-1"></i> Add Area</button>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Parking Area Name</th>
+                                    <th>Location</th>
+                                    <th>Total Slots</th>
+                                    <th>Available</th>
+                                    <th>Occupied</th>
+                                    <th>Maintenance</th>
+                                    <th>Rate/Hr</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="areas-table-body">
+                                <tr><td colspan="10" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading parking areas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add / Edit Area Modal -->
+    <div class="modal fade" id="areaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold" id="areaModalTitle">Add Parking Area</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="areaForm" onsubmit="event.preventDefault(); saveArea();">
+                        <input type="hidden" id="areaIdInput">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium">Area Name</label>
+                            <input type="text" id="areaNameInput" class="form-control" placeholder="e.g. Phoenix Mall" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium">Location</label>
+                            <input type="text" id="areaLocationInput" class="form-control" placeholder="e.g. Downtown Central" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-medium">Total Slots</label>
+                                <input type="number" id="areaSlotsInput" class="form-control" placeholder="50" min="1" max="1000" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-medium">Price/Hour (₹)</label>
+                                <input type="number" id="areaPriceInput" class="form-control" placeholder="40" min="1" step="0.5" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium">Status</label>
+                            <select id="areaStatusInput" class="form-select">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        
+                        <div id="areaFormError" class="alert alert-danger py-2 px-3 small d-none mb-3"></div>
+
+                        <button type="submit" id="saveAreaBtn" class="btn btn-primary w-100 py-2">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal fade" id="deleteAreaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-trash3 me-2"></i>Delete Area</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3" id="deleteAreaBody">
+                    Are you sure you want to delete this parking area? All associated slots will also be removed.
+                </div>
+                <div class="modal-footer border-top-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAreaBtn">Delete Permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        let areasData = [];
+        let areaToDeleteId = null;
+
+        async function loadAreas() {
+            const tbody = document.getElementById('areas-table-body');
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading parking areas...</td></tr>';
+
+            try {
+                const res = await window.Api.getAdminAreas();
+                if (res && res.success && res.data) {
+                    areasData = res.data;
+                    renderAreasTable(areasData);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">No parking areas found.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Failed to load areas:", err);
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-danger">${err.message || 'Error loading parking areas.'}</td></tr>`;
+            }
+        }
+
+        function renderAreasTable(areas) {
+            const tbody = document.getElementById('areas-table-body');
+            if (!areas || areas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">No parking areas created yet. Click "Add Area" above to create one.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = areas.map(area => {
+                const statusBadge = area.status === 'Active'
+                    ? '<span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle me-1"></i>Active</span>'
+                    : (area.status === 'Maintenance' 
+                        ? '<span class="badge bg-warning bg-opacity-10 text-warning"><i class="bi bi-tools me-1"></i>Maintenance</span>' 
+                        : '<span class="badge bg-danger bg-opacity-10 text-danger">Inactive</span>');
+
+                return `
+                    <tr>
+                        <td class="text-muted font-monospace small">#${area.id}</td>
+                        <td class="fw-bold">${area.name}</td>
+                        <td class="text-muted">${area.location}</td>
+                        <td><span class="badge bg-light text-dark border font-monospace">${area.total_slots}</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success fw-bold">${area.available_slots}</span></td>
+                        <td><span class="badge bg-danger bg-opacity-10 text-danger">${area.occupied_slots}</span></td>
+                        <td><span class="badge bg-warning bg-opacity-10 text-warning">${area.maintenance_slots}</span></td>
+                        <td class="fw-bold">₹${area.price_per_hour}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="slots.html?area_id=${area.id}" class="btn btn-light text-info" title="Manage Slots">
+                                    <i class="bi bi-grid-3x3"></i>
+                                </a>
+                                <button class="btn btn-light text-primary" title="Edit Area" onclick="openEditAreaModal(${area.id})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-light text-danger" title="Delete Area" onclick="promptDeleteArea(${area.id}, '${area.name}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openAddAreaModal() {
+            document.getElementById('areaModalTitle').textContent = 'Add Parking Area';
+            document.getElementById('areaIdInput').value = '';
+            document.getElementById('areaNameInput').value = '';
+            document.getElementById('areaLocationInput').value = '';
+            document.getElementById('areaSlotsInput').value = '50';
+            document.getElementById('areaPriceInput').value = '30';
+            document.getElementById('areaStatusInput').value = 'Active';
+            document.getElementById('areaFormError').classList.add('d-none');
+            
+            new bootstrap.Modal(document.getElementById('areaModal')).show();
+        }
+
+        function openEditAreaModal(id) {
+            const area = areasData.find(a => a.id === id);
+            if (!area) return;
+
+            document.getElementById('areaModalTitle').textContent = 'Edit Parking Area';
+            document.getElementById('areaIdInput').value = area.id;
+            document.getElementById('areaNameInput').value = area.name;
+            document.getElementById('areaLocationInput').value = area.location;
+            document.getElementById('areaSlotsInput').value = area.total_slots;
+            document.getElementById('areaPriceInput').value = area.price_per_hour;
+            document.getElementById('areaStatusInput').value = area.status;
+            document.getElementById('areaFormError').classList.add('d-none');
+
+            new bootstrap.Modal(document.getElementById('areaModal')).show();
+        }
+
+        async function saveArea() {
+            const id = document.getElementById('areaIdInput').value;
+            const name = document.getElementById('areaNameInput').value.trim();
+            const location = document.getElementById('areaLocationInput').value.trim();
+            const total_slots = parseInt(document.getElementById('areaSlotsInput').value);
+            const price_per_hour = parseFloat(document.getElementById('areaPriceInput').value);
+            const status = document.getElementById('areaStatusInput').value;
+
+            const errDiv = document.getElementById('areaFormError');
+            errDiv.classList.add('d-none');
+
+            const payload = {
+                name,
+                location,
+                total_slots,
+                price_per_hour,
+                status
+            };
+
+            const btn = document.getElementById('saveAreaBtn');
+            btn.disabled = true;
+
+            try {
+                if (id) {
+                    await window.Api.updateAdminArea(id, payload);
+                } else {
+                    await window.Api.createAdminArea(payload);
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('areaModal')).hide();
+                loadAreas();
+            } catch (err) {
+                errDiv.textContent = err.message || "Failed to save area.";
+                errDiv.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function promptDeleteArea(id, name) {
+            areaToDeleteId = id;
+            document.getElementById('deleteAreaBody').innerHTML = `Are you sure you want to delete parking area <strong>${name}</strong>?<br><br><span class="text-danger small"><i class="bi bi-exclamation-triangle-fill me-1"></i>Warning: All associated slots will be deleted. This operation cannot be undone.</span>`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteAreaModal'));
+            const confirmBtn = document.getElementById('confirmDeleteAreaBtn');
+            confirmBtn.onclick = async () => {
+                try {
+                    confirmBtn.disabled = true;
+                    await window.Api.deleteAdminArea(areaToDeleteId);
+                    modal.hide();
+                    loadAreas();
+                } catch (err) {
+                    alert(err.message || 'Failed to delete area.');
+                } finally {
+                    confirmBtn.disabled = false;
+                }
+            };
+            modal.show();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.AppAdmin.checkAuth()) {
+                loadAreas();
+            }
+        });
+    </script>
+</body>
+</html>

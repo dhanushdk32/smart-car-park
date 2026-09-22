@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings - Admin - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/admin.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="px-4 mb-4">
+            <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
+            <span class="text-muted small fw-medium">Admin Portal</span>
+        </div>
+        <div class="list-group list-group-flush border-none">
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+        </div>
+    </aside>
+
+    <main class="admin-main pb-5">
+        <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <h5 class="fw-bold m-0 d-none d-md-block">Bookings Management</h5>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            
+            <!-- Filters Card -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-3">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" id="bookingSearchInput" class="form-control bg-light border-0" placeholder="Search Ref, Car, or Customer" onkeyup="if(event.key==='Enter'){ currentPage = 1; loadBookings(); }">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" id="bookingDateFilter" class="form-control form-control-sm bg-light border-0" onchange="currentPage = 1; loadBookings();">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm bg-light border-0" id="bookingAreaFilter" onchange="currentPage = 1; loadBookings();">
+                                <option value="">All Areas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select form-select-sm bg-light border-0" id="bookingStatusFilter" onchange="currentPage = 1; loadBookings();">
+                                <option value="">All Statuses</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Active">Active</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <button class="btn btn-primary btn-sm w-100" onclick="currentPage = 1; loadBookings();"><i class="bi bi-funnel me-1"></i> Apply Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings Table Card -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Booking ID</th>
+                                    <th>Customer</th>
+                                    <th>Car Number</th>
+                                    <th>Area & Slot</th>
+                                    <th>Date & Time</th>
+                                    <th>Amount</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th class="pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-table-body">
+                                <tr><td colspan="9" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading bookings...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center px-4 flex-wrap gap-2">
+                        <span class="text-muted small" id="bookingPaginationInfo">Showing 0 to 0 of 0 entries</span>
+                        <ul class="pagination pagination-sm m-0" id="bookingPaginationUl">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Booking Details Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold">Booking Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="bookingModalBody">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageLimit = 10;
+        let loadedBookings = [];
+
+        async function initPage() {
+            try {
+                // Populate area dropdown
+                const areaRes = await window.Api.getAdminAreas();
+                if (areaRes && areaRes.data) {
+                    const sel = document.getElementById('bookingAreaFilter');
+                    areaRes.data.forEach(a => {
+                        const opt = document.createElement('option');
+                        opt.value = a.id;
+                        opt.textContent = a.name;
+                        sel.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.warn("Could not load areas for filter:", e);
+            }
+
+            loadBookings();
+        }
+
+        async function loadBookings() {
+            const tbody = document.getElementById('bookings-table-body');
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading bookings...</td></tr>';
+
+            const search = document.getElementById('bookingSearchInput').value.trim();
+            const dateVal = document.getElementById('bookingDateFilter').value;
+            const areaId = document.getElementById('bookingAreaFilter').value;
+            const status = document.getElementById('bookingStatusFilter').value;
+
+            const params = { page: currentPage, limit: pageLimit };
+            if (search) params.search = search;
+            if (dateVal) params.booking_date = dateVal;
+            if (areaId) params.area_id = areaId;
+            if (status) params.status = status;
+
+            try {
+                const res = await window.Api.getAdminBookings(params);
+                if (res && res.items) {
+                    loadedBookings = res.items;
+                    renderBookingsTable(loadedBookings);
+                    renderPagination(res.total, res.page, res.limit, res.total_pages);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No bookings found.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Failed to load bookings:", err);
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">${err.message || 'Error loading bookings.'}</td></tr>`;
+            }
+        }
+
+        function renderBookingsTable(bookings) {
+            const tbody = document.getElementById('bookings-table-body');
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No bookings matching current criteria.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = bookings.map(b => {
+                let statusClass = 'bg-primary text-primary';
+                if (b.status === 'Confirmed') statusClass = 'bg-success text-success';
+                if (b.status === 'Active') statusClass = 'bg-info text-info';
+                if (b.status === 'Completed') statusClass = 'bg-secondary text-secondary';
+                if (b.status === 'Cancelled') statusClass = 'bg-danger text-danger';
+
+                const payBadgeClass = b.payment_status === 'Success' 
+                    ? 'bg-success bg-opacity-10 text-success' 
+                    : (b.payment_status === 'Pending' ? 'bg-warning bg-opacity-10 text-warning' : 'bg-danger bg-opacity-10 text-danger');
+
+                const formattedDate = new Date(b.booking_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                const startTimeStr = b.start_time.substring(0, 5);
+                const endTimeStr = b.end_time.substring(0, 5);
+
+                return `
+                    <tr>
+                        <td class="ps-4 font-monospace small fw-bold">${b.booking_reference}</td>
+                        <td class="fw-medium">${b.user_name}</td>
+                        <td><span class="badge bg-light text-dark border font-monospace">${b.car_number}</span></td>
+                        <td>
+                            <div>${b.area_name}</div>
+                            <small class="badge bg-light text-dark border">Slot ${b.slot_number}</small>
+                        </td>
+                        <td>
+                            <div>${formattedDate}</div>
+                            <small class="text-muted">${startTimeStr} - ${endTimeStr} (${b.duration}h)</small>
+                        </td>
+                        <td class="fw-bold">₹${b.amount}</td>
+                        <td><span class="badge ${payBadgeClass}"><i class="bi bi-shield-check me-1"></i>${b.payment_status}</span></td>
+                        <td><span class="badge ${statusClass} bg-opacity-10 px-2 py-1">${b.status}</span></td>
+                        <td class="pe-4">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-light text-primary" title="View details" onclick="viewBookingDetails(${b.id})">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                ${b.status === 'Confirmed' || b.status === 'Active' ? `
+                                    <button class="btn btn-light text-success" title="Mark Completed" onclick="updateStatus(${b.id}, 'Completed')">
+                                        <i class="bi bi-check2-circle"></i>
+                                    </button>
+                                    <button class="btn btn-light text-danger" title="Cancel Booking" onclick="updateStatus(${b.id}, 'Cancelled')">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(total, page, limit, totalPages) {
+            const start = total === 0 ? 0 : (page - 1) * limit + 1;
+            const end = Math.min(page * limit, total);
+            document.getElementById('bookingPaginationInfo').textContent = `Showing ${start} to ${end} of ${total} entries`;
+
+            const ul = document.getElementById('bookingPaginationUl');
+            ul.innerHTML = '';
+
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${page <= 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); if(${page} > 1) { currentPage--; loadBookings(); }">Previous</a>`;
+            ul.appendChild(prevLi);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === page ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); currentPage = ${i}; loadBookings();">${i}</a>`;
+                ul.appendChild(pageLi);
+            }
+
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${page >= totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); if(${page} < ${totalPages}) { currentPage++; loadBookings(); }">Next</a>`;
+            ul.appendChild(nextLi);
+        }
+
+        function viewBookingDetails(id) {
+            const b = loadedBookings.find(item => item.id === id);
+            if (!b) return;
+
+            const modalBody = document.getElementById('bookingModalBody');
+            modalBody.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <div>
+                        <div class="text-muted small">Reference Code</div>
+                        <h4 class="fw-bold m-0 text-primary font-monospace">${b.booking_reference}</h4>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2">${b.status}</span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Customer</small>
+                        <strong class="fs-6">${b.user_name}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Vehicle</small>
+                        <strong class="fs-6 font-monospace">${b.car_number}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Parking Area</small>
+                        <span>${b.area_name}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Assigned Slot</small>
+                        <span class="badge bg-light text-dark border">Slot ${b.slot_number}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Date & Duration</small>
+                        <span>${b.booking_date} (${b.duration} hrs)</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Time Slot</small>
+                        <span>${b.start_time.substring(0,5)} - ${b.end_time.substring(0,5)}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Amount</small>
+                        <span class="fs-5 fw-bold text-success">₹${b.amount}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Payment Status</small>
+                        <span class="badge bg-${b.payment_status === 'Success' ? 'success' : 'warning'} bg-opacity-10 text-${b.payment_status === 'Success' ? 'success' : 'warning'}">${b.payment_status}</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-top d-flex gap-2">
+                    ${b.status !== 'Completed' && b.status !== 'Cancelled' ? `
+                        <button class="btn btn-success btn-sm flex-fill" onclick="updateStatus(${b.id}, 'Completed')"><i class="bi bi-check-circle me-1"></i> Complete</button>
+                        <button class="btn btn-danger btn-sm flex-fill" onclick="updateStatus(${b.id}, 'Cancelled')"><i class="bi bi-x-circle me-1"></i> Cancel</button>
+                    ` : ''}
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById('bookingModal')).show();
+        }
+
+        async function updateStatus(id, newStatus) {
+            if (!confirm(`Are you sure you want to mark this booking as ${newStatus}?`)) return;
+
+            try {
+                await window.Api.updateAdminBookingStatus(id, newStatus);
+                const modalEl = document.getElementById('bookingModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                loadBookings();
+            } catch (err) {
+                alert(err.message || "Failed to update booking status");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.AppAdmin.checkAuth()) {
+                initPage();
+            }
+        });
+    </script>
+</body>
+</html>

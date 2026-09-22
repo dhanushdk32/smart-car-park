@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SmartPark</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/user.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="bi bi-p-square-fill me-2"></i>SmartPark
+            </a>
+        </div>
+    </nav>
+
+    <!-- Register Section -->
+    <section class="main-content py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-7 col-xl-6">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold mb-1">Create Account</h2>
+                                <p class="text-muted small">Join SmartPark to manage your parking easily</p>
+                            </div>
+                            
+                            <form id="registerForm" onsubmit="event.preventDefault(); window.AppUser.handleRegister();">
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <label class="form-label fw-medium text-secondary small">Full Name</label>
+                                        <input type="text" class="form-control" id="fullName" placeholder="John Doe" required>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label fw-medium text-secondary small">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="mobileNumber" placeholder="9876543210" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium text-secondary small">Email Address</label>
+                                    <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
+                                </div>
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <label class="form-label fw-medium text-secondary small">Car Number</label>
+                                        <input type="text" class="form-control text-uppercase" id="carNumberReg" placeholder="KA-01-AB-1234" required>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label fw-medium text-secondary small">Vehicle Type</label>
+                                        <select class="form-select" id="vehicleType" required>
+                                            <option value="" selected disabled>Select type</option>
+                                            <option value="Car">Car</option>
+                                            <option value="SUV">SUV</option>
+                                            <option value="EV">EV</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium text-secondary small mb-1">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control border-end-0" id="regPassword" placeholder="Create a password" minlength="6" required>
+                                        <span class="input-group-text bg-white cursor-pointer" onclick="window.AppUser.togglePasswordVisibility('regPassword', this)"><i class="bi bi-eye text-muted"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-medium text-secondary small mb-1">Confirm Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control border-end-0" id="confirmPassword" placeholder="Confirm your password" required>
+                                        <span class="input-group-text bg-white cursor-pointer" onclick="window.AppUser.togglePasswordVisibility('confirmPassword', this)"><i class="bi bi-eye text-muted"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback" id="passwordError">Passwords do not match.</div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100 py-2 mb-4 rounded-3 fw-medium">Create Account</button>
+                                
+                                <div class="text-center">
+                                    <span class="text-muted small">Already have an account? </span>
+                                    <a href="login.html" class="text-primary text-decoration-none fw-medium">Login</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/user.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Slots - Admin - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/admin.css" rel="stylesheet">
+    <link href="../css/user.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="px-4 mb-4">
+            <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
+            <span class="text-muted small fw-medium">Admin Portal</span>
+        </div>
+        <div class="list-group list-group-flush border-none">
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+        </div>
+    </aside>
+
+    <main class="admin-main pb-5">
+        <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <h5 class="fw-bold m-0 d-none d-md-block">Slot Management</h5>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-medium text-muted mb-1">Select Parking Area</label>
+                            <select class="form-select bg-light border-0" id="areaSelect" onchange="onAreaChange()">
+                                <option value="">Loading areas...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-medium text-muted mb-1">Filter by Status</label>
+                            <select class="form-select bg-light border-0" id="slotStatusFilter" onchange="renderSlots()">
+                                <option value="">All Statuses</option>
+                                <option value="Available">Available</option>
+                                <option value="Occupied">Occupied</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-4 mt-md-0 pt-md-3">
+                            <button class="btn btn-primary btn-sm" onclick="openAddSlotModal()"><i class="bi bi-plus-lg me-1"></i> Add Slot</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="fw-bold m-0" id="layoutTitle">Live Layout View</h6>
+                                <div class="d-flex gap-3 small text-muted">
+                                    <span><span class="badge bg-success bg-opacity-25 text-success rounded-circle p-1 me-1">●</span> Available</span>
+                                    <span><span class="badge bg-danger bg-opacity-25 text-danger rounded-circle p-1 me-1">●</span> Occupied</span>
+                                    <span><span class="badge bg-warning bg-opacity-25 text-warning rounded-circle p-1 me-1">●</span> Maintenance</span>
+                                </div>
+                            </div>
+                            
+                            <div class="parking-layout bg-light p-3 rounded-4" id="admin-slot-grid" style="min-height: 350px;">
+                                <div class="text-center py-5 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading slots...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-white pt-4 px-4 border-bottom-0">
+                            <h6 class="fw-bold m-0">Slot Actions & Details</h6>
+                        </div>
+                        <div class="card-body p-4 text-center">
+                            <div id="slotPlaceholder">
+                                <i class="bi bi-hand-index-thumb text-muted fs-1 mb-3 d-block opacity-50"></i>
+                                <p class="text-muted">Click any slot on the visual grid to inspect or modify its status.</p>
+                            </div>
+                            
+                            <div class="bg-light p-4 rounded-4 text-start d-none" id="slotEditor">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="fw-bold text-primary m-0" id="editSlotNumber">A1</h4>
+                                    <span class="badge" id="editSlotStatusBadge">Available</span>
+                                </div>
+
+                                <div id="occupiedDetailsBox" class="alert alert-info py-2 px-3 small d-none mb-3">
+                                    <strong><i class="bi bi-person-fill me-1"></i>Occupied By:</strong>
+                                    <div id="occupiedUser">John Doe</div>
+                                    <div id="occupiedCar" class="font-monospace">KA01AB1234</div>
+                                    <div id="occupiedRef" class="text-muted">Ref: #BK-12345</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label small fw-medium">Slot Type</label>
+                                    <select class="form-select form-select-sm" id="editSlotType">
+                                        <option value="Regular">Regular</option>
+                                        <option value="EV">EV</option>
+                                        <option value="Accessible">Accessible</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label small fw-medium">Slot Status</label>
+                                    <select class="form-select form-select-sm" id="editSlotStatus">
+                                        <option value="Available">Available</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                    <small class="text-muted" style="font-size: 0.75rem;">Occupied slots cannot be overridden until booking ends.</small>
+                                </div>
+
+                                <div id="slotActionAlert" class="alert alert-danger py-2 px-3 small d-none mb-3"></div>
+
+                                <button class="btn btn-primary btn-sm w-100 py-2 fw-medium mb-2" id="updateSlotBtn" onclick="saveSlotChanges()">
+                                    Update Slot
+                                </button>
+                                
+                                <button class="btn btn-outline-danger btn-sm w-100 py-2" id="deleteSlotBtn" onclick="deleteCurrentSlot()">
+                                    <i class="bi bi-trash me-1"></i> Delete Slot
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Add Slot Modal -->
+    <div class="modal fade" id="addSlotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold">Add Parking Slot</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addSlotForm" onsubmit="event.preventDefault(); submitAddSlot();">
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium">Slot Number</label>
+                            <input type="text" id="newSlotNumber" class="form-control" placeholder="e.g. A11 or B5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium">Slot Type</label>
+                            <select id="newSlotType" class="form-select">
+                                <option value="Regular">Regular</option>
+                                <option value="EV">EV</option>
+                                <option value="Accessible">Accessible</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-medium">Initial Status</label>
+                            <select id="newSlotStatus" class="form-select">
+                                <option value="Available">Available</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        
+                        <div id="addSlotError" class="alert alert-danger py-2 px-3 small d-none mb-3"></div>
+
+                        <button type="submit" id="submitSlotBtn" class="btn btn-primary w-100 py-2">Create Slot</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        let currentAreaId = null;
+        let areaSlots = [];
+        let activeSelectedSlot = null;
+
+        async function initPage() {
+            try {
+                const res = await window.Api.getAdminAreas();
+                if (res && res.data && res.data.length > 0) {
+                    const select = document.getElementById('areaSelect');
+                    select.innerHTML = res.data.map(a => `<option value="${a.id}">${a.name} (${a.total_slots} slots)</option>`).join('');
+
+                    // Check URL param for area_id
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const queryAreaId = urlParams.get('area_id');
+                    if (queryAreaId && res.data.some(a => a.id == queryAreaId)) {
+                        select.value = queryAreaId;
+                    }
+
+                    currentAreaId = select.value;
+                    loadAreaSlots();
+                } else {
+                    document.getElementById('areaSelect').innerHTML = '<option value="">No areas found. Create one first.</option>';
+                    document.getElementById('admin-slot-grid').innerHTML = '<div class="text-center py-5 text-muted">Please create a parking area in the Parking Areas page first.</div>';
+                }
+            } catch (err) {
+                console.error("Failed to load areas:", err);
+            }
+        }
+
+        function onAreaChange() {
+            currentAreaId = document.getElementById('areaSelect').value;
+            deselectSlot();
+            loadAreaSlots();
+        }
+
+        async function loadAreaSlots() {
+            if (!currentAreaId) return;
+            const grid = document.getElementById('admin-slot-grid');
+            grid.innerHTML = '<div class="text-center py-5 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading slots...</div>';
+
+            try {
+                const res = await window.Api.getAdminAreaSlots(currentAreaId);
+                if (res && res.success) {
+                    areaSlots = res.slots || [];
+                    document.getElementById('layoutTitle').textContent = `Live Layout View - ${res.area.name}`;
+                    renderSlots();
+                }
+            } catch (err) {
+                console.error("Failed to load slots:", err);
+                grid.innerHTML = `<div class="text-center py-5 text-danger">${err.message || 'Error loading slots.'}</div>`;
+            }
+        }
+
+        function renderSlots() {
+            const grid = document.getElementById('admin-slot-grid');
+            const statusFilter = document.getElementById('slotStatusFilter').value;
+
+            let filtered = areaSlots;
+            if (statusFilter) {
+                filtered = areaSlots.filter(s => s.status.toLowerCase() === statusFilter.toLowerCase());
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="text-center py-5 text-muted">No slots match the current criteria.</div>';
+                return;
+            }
+
+            // Group by letter prefix (e.g. A, B, C) or row
+            const rows = {};
+            filtered.forEach(slot => {
+                const prefix = slot.slot_number.charAt(0).toUpperCase();
+                const rowKey = /^[A-Z]$/.test(prefix) ? prefix : 'Slots';
+                if (!rows[rowKey]) rows[rowKey] = [];
+                rows[rowKey].push(slot);
+            });
+
+            let html = '';
+            for (const [rowName, slotsInRow] of Object.entries(rows)) {
+                html += `
+                    <div class="mb-3">
+                        <div class="small fw-bold text-muted mb-2 px-1">Row ${rowName}</div>
+                        <div class="d-flex flex-wrap gap-2">
+                `;
+                
+                slotsInRow.forEach(slot => {
+                    let bgClass = 'bg-success text-white';
+                    let icon = 'bi-car-front-fill';
+
+                    if (slot.status === 'Occupied') {
+                        bgClass = 'bg-danger text-white';
+                    } else if (slot.status === 'Maintenance') {
+                        bgClass = 'bg-warning text-dark';
+                        icon = 'bi-cone-striped';
+                    } else {
+                        bgClass = 'bg-success text-white';
+                    }
+
+                    if (slot.slot_type === 'EV') icon = 'bi-ev-front-fill';
+                    else if (slot.slot_type === 'Accessible') icon = 'bi-person-wheelchair';
+
+                    const isSelected = activeSelectedSlot && activeSelectedSlot.id === slot.id;
+                    const borderClass = isSelected ? 'border border-3 border-primary shadow' : 'border-0';
+
+                    html += `
+                        <div class="slot-item rounded-3 p-2 text-center ${bgClass} ${borderClass}" 
+                             style="width: 72px; height: 72px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;"
+                             onclick="selectSlot(${slot.id})">
+                            <i class="bi ${icon}" style="font-size: 1.2rem;"></i>
+                            <span class="fw-bold small font-monospace">${slot.slot_number}</span>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        function selectSlot(slotId) {
+            const slot = areaSlots.find(s => s.id === slotId);
+            if (!slot) return;
+
+            activeSelectedSlot = slot;
+            renderSlots();
+
+            document.getElementById('slotPlaceholder').classList.add('d-none');
+            const editor = document.getElementById('slotEditor');
+            editor.classList.remove('d-none');
+
+            document.getElementById('editSlotNumber').textContent = `Slot ${slot.slot_number}`;
+            
+            const badge = document.getElementById('editSlotStatusBadge');
+            badge.textContent = slot.status;
+            badge.className = `badge bg-${slot.status === 'Occupied' ? 'danger' : (slot.status === 'Maintenance' ? 'warning' : 'success')}`;
+
+            document.getElementById('editSlotType').value = slot.slot_type || 'Regular';
+            document.getElementById('editSlotStatus').value = slot.base_status === 'Maintenance' ? 'Maintenance' : 'Available';
+
+            const occBox = document.getElementById('occupiedDetailsBox');
+            if (slot.is_occupied && slot.booking_info) {
+                occBox.classList.remove('d-none');
+                document.getElementById('occupiedUser').textContent = `Customer: ${slot.booking_info.user}`;
+                document.getElementById('occupiedCar').textContent = `Car: ${slot.booking_info.car}`;
+                document.getElementById('occupiedRef').textContent = `Ref: ${slot.booking_info.ref}`;
+            } else {
+                occBox.classList.add('d-none');
+            }
+
+            document.getElementById('slotActionAlert').classList.add('d-none');
+        }
+
+        function deselectSlot() {
+            activeSelectedSlot = null;
+            document.getElementById('slotPlaceholder').classList.remove('d-none');
+            document.getElementById('slotEditor').classList.add('d-none');
+        }
+
+        async function saveSlotChanges() {
+            if (!activeSelectedSlot) return;
+
+            const slotType = document.getElementById('editSlotType').value;
+            const status = document.getElementById('editSlotStatus').value;
+            const alertBox = document.getElementById('slotActionAlert');
+            alertBox.classList.add('d-none');
+
+            const btn = document.getElementById('updateSlotBtn');
+            btn.disabled = true;
+
+            try {
+                await window.Api.updateAdminSlot(activeSelectedSlot.id, {
+                    slot_type: slotType,
+                    status: status
+                });
+                await loadAreaSlots();
+                selectSlot(activeSelectedSlot.id);
+            } catch (err) {
+                alertBox.textContent = err.message || "Failed to update slot";
+                alertBox.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteCurrentSlot() {
+            if (!activeSelectedSlot) return;
+            if (!confirm(`Are you sure you want to delete Slot ${activeSelectedSlot.slot_number}?`)) return;
+
+            const alertBox = document.getElementById('slotActionAlert');
+            alertBox.classList.add('d-none');
+
+            try {
+                await window.Api.deleteAdminSlot(activeSelectedSlot.id);
+                deselectSlot();
+                loadAreaSlots();
+            } catch (err) {
+                alertBox.textContent = err.message || "Cannot delete slot.";
+                alertBox.classList.remove('d-none');
+            }
+        }
+
+        function openAddSlotModal() {
+            if (!currentAreaId) {
+                alert("Please select or create a parking area first.");
+                return;
+            }
+            document.getElementById('newSlotNumber').value = '';
+            document.getElementById('newSlotType').value = 'Regular';
+            document.getElementById('newSlotStatus').value = 'Available';
+            document.getElementById('addSlotError').classList.add('d-none');
+            new bootstrap.Modal(document.getElementById('addSlotModal')).show();
+        }
+
+        async function submitAddSlot() {
+            const slot_number = document.getElementById('newSlotNumber').value.trim();
+            const slot_type = document.getElementById('newSlotType').value;
+            const status = document.getElementById('newSlotStatus').value;
+            const errDiv = document.getElementById('addSlotError');
+            errDiv.classList.add('d-none');
+
+            const btn = document.getElementById('submitSlotBtn');
+            btn.disabled = true;
+
+            try {
+                await window.Api.createAdminSlot(currentAreaId, {
+                    slot_number,
+                    slot_type,
+                    status
+                });
+                bootstrap.Modal.getInstance(document.getElementById('addSlotModal')).hide();
+                loadAreaSlots();
+            } catch (err) {
+                errDiv.textContent = err.message || "Failed to create slot.";
+                errDiv.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.AppAdmin.checkAuth()) {
+                initPage();
+            }
+        });
+    </script>
+</body>
+</html>

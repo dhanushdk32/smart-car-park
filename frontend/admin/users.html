@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Admin - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/admin.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="px-4 mb-4">
+            <h4 class="fw-bold text-primary m-0"><i class="bi bi-p-square-fill me-2"></i>SmartPark</h4>
+            <span class="text-muted small fw-medium">Admin Portal</span>
+        </div>
+        <div class="list-group list-group-flush border-none">
+            <a href="dashboard.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Parking Management</div>
+            <a href="areas.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-geo-alt me-2"></i> Parking Areas</a>
+            <a href="slots.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-grid-3x3 me-2"></i> Parking Slots</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Operations</div>
+            <a href="bookings.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-ticket-perforated me-2"></i> Bookings</a>
+            <a href="users.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-people me-2"></i> Users</a>
+            <a href="payments.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-credit-card me-2"></i> Payments</a>
+            <div class="px-4 mt-3 mb-1 text-muted small fw-bold text-uppercase">Analytics & ML</div>
+            <a href="analytics.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-graph-up me-2"></i> Occupancy Analytics</a>
+            <a href="predictions.html" class="list-group-item list-group-item-action admin-link border-0"><i class="bi bi-cpu me-2"></i> ML Predictions</a>
+        </div>
+    </aside>
+
+    <main class="admin-main pb-5">
+        <nav class="admin-navbar d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+            <h5 class="fw-bold m-0 d-none d-md-block">Users Management</h5>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="32" height="32" alt="Admin">
+                    <span class="fw-medium" id="adminUserName">Super Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                    <li><a class="dropdown-item text-danger" href="#" onclick="AppAdmin.logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <h6 class="fw-bold m-0">Registered Users</h6>
+                    
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <select class="form-select form-select-sm" id="userStatusFilter" style="width: 140px;" onchange="currentPage = 1; loadUsers();">
+                            <option value="">All Statuses</option>
+                            <option value="true">Active Only</option>
+                            <option value="false">Inactive Only</option>
+                        </select>
+
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <input type="text" id="userSearchInput" class="form-control" placeholder="Search name, car, email..." onkeyup="if(event.key==='Enter') { currentPage = 1; loadUsers(); }">
+                            <button class="btn btn-outline-secondary" onclick="currentPage = 1; loadUsers();"><i class="bi bi-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Car Number</th>
+                                    <th>Vehicle Type</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Registered Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr><td colspan="9" class="text-center py-4 text-muted">Loading users...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+                        <span class="text-muted small" id="userPaginationInfo">Showing 0 to 0 of 0 entries</span>
+                        <ul class="pagination pagination-sm m-0" id="userPaginationUl">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold">User Details & Activity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="userDetailsContent">
+                    <div class="text-center py-4"><span class="spinner-border text-primary"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Change Confirm Modal -->
+    <div class="modal fade" id="statusConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="modal-title fw-bold" id="statusConfirmTitle">Change User Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3" id="statusConfirmBody">
+                    Are you sure you want to update this user's account status?
+                </div>
+                <div class="modal-footer border-top-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="statusConfirmBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageLimit = 10;
+        let selectedUserId = null;
+        let targetStatus = null;
+
+        async function loadUsers() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading users...</td></tr>';
+
+            const search = document.getElementById('userSearchInput').value.trim();
+            const statusFilter = document.getElementById('userStatusFilter').value;
+
+            const params = { page: currentPage, limit: pageLimit };
+            if (search) params.search = search;
+            if (statusFilter !== "") params.is_active = statusFilter;
+
+            try {
+                const res = await window.Api.getAdminUsers(params);
+                if (res && res.items) {
+                    renderUsersTable(res.items);
+                    renderPagination(res.total, res.page, res.limit, res.total_pages);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No users found.</td></tr>';
+                }
+            } catch (err) {
+                console.error("Failed to load users:", err);
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-danger">${err.message || 'Error loading users.'}</td></tr>`;
+            }
+        }
+
+        function renderUsersTable(users) {
+            const tbody = document.getElementById('users-table-body');
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No registered users found matching your search.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(u => {
+                const firstChar = (u.full_name || 'U').charAt(0).toUpperCase();
+                const isAct = u.is_active;
+                const statusBadge = isAct 
+                    ? '<span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle me-1"></i>Active</span>'
+                    : '<span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle me-1"></i>Inactive</span>';
+                const roleBadge = u.role === 'admin'
+                    ? '<span class="badge bg-primary">Admin</span>'
+                    : '<span class="badge bg-light text-dark border">User</span>';
+                
+                const regDate = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+
+                return `
+                    <tr>
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 34px; height: 34px; font-size: 0.85rem;">
+                                    ${firstChar}
+                                </div>
+                                <div>${u.full_name}</div>
+                            </div>
+                        </td>
+                        <td class="text-muted small">${u.email}</td>
+                        <td class="text-muted small">${u.mobile}</td>
+                        <td><span class="badge bg-light text-dark border font-monospace">${u.car_number}</span></td>
+                        <td>${u.vehicle_type}</td>
+                        <td>${roleBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-muted small">${regDate}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-light text-primary" title="View details" onclick="showUserDetails(${u.id})">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                ${u.role !== 'admin' ? `
+                                    <button class="btn btn-light ${isAct ? 'text-danger' : 'text-success'}" title="${isAct ? 'Deactivate User' : 'Activate User'}" onclick="promptStatusChange(${u.id}, '${u.full_name}', ${!isAct})">
+                                        <i class="bi ${isAct ? 'bi-pause-circle' : 'bi-play-circle'}"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(total, page, limit, totalPages) {
+            const start = total === 0 ? 0 : (page - 1) * limit + 1;
+            const end = Math.min(page * limit, total);
+            document.getElementById('userPaginationInfo').textContent = `Showing ${start} to ${end} of ${total} entries`;
+
+            const ul = document.getElementById('userPaginationUl');
+            ul.innerHTML = '';
+
+            // Previous
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${page <= 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); if(${page} > 1) { currentPage--; loadUsers(); }">Previous</a>`;
+            ul.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === page ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); currentPage = ${i}; loadUsers();">${i}</a>`;
+                ul.appendChild(pageLi);
+            }
+
+            // Next
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${page >= totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="event.preventDefault(); if(${page} < ${totalPages}) { currentPage++; loadUsers(); }">Next</a>`;
+            ul.appendChild(nextLi);
+        }
+
+        async function showUserDetails(userId) {
+            const modalEl = document.getElementById('userDetailsModal');
+            const modal = new bootstrap.Modal(modalEl);
+            const content = document.getElementById('userDetailsContent');
+            content.innerHTML = '<div class="text-center py-4"><span class="spinner-border text-primary"></span></div>';
+            modal.show();
+
+            try {
+                const res = await window.Api.getAdminUserDetails(userId);
+                if (res && res.success && res.data) {
+                    const u = res.data.user;
+                    const stats = res.data.stats;
+                    const bookings = res.data.recent_bookings;
+
+                    content.innerHTML = `
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted small text-uppercase fw-bold">Personal Information</h6>
+                                <p class="mb-1"><strong>Name:</strong> ${u.full_name}</p>
+                                <p class="mb-1"><strong>Email:</strong> ${u.email}</p>
+                                <p class="mb-1"><strong>Phone:</strong> ${u.mobile}</p>
+                                <p class="mb-1"><strong>Vehicle:</strong> ${u.car_number} (${u.vehicle_type})</p>
+                                <p class="mb-0"><strong>Status:</strong> <span class="badge ${u.is_active ? 'bg-success' : 'bg-danger'} bg-opacity-10 text-${u.is_active ? 'success' : 'danger'}">${u.is_active ? 'Active' : 'Inactive'}</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted small text-uppercase fw-bold">Account Statistics</h6>
+                                <div class="row g-2 text-center mt-1">
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded-3">
+                                            <div class="fs-5 fw-bold text-primary">${stats.total_bookings}</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Total Bookings</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded-3">
+                                            <div class="fs-5 fw-bold text-success">${stats.completed_bookings}</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Completed</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded-3">
+                                            <div class="fs-5 fw-bold text-dark">₹${stats.total_spent.toFixed(0)}</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Total Spent</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-muted small text-uppercase fw-bold mb-3">Recent Bookings</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ref</th>
+                                        <th>Area & Slot</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${bookings && bookings.length > 0 ? bookings.map(b => `
+                                        <tr>
+                                            <td class="font-monospace small">${b.booking_reference}</td>
+                                            <td>${b.area_name} - Slot ${b.slot_number}</td>
+                                            <td class="small text-muted">${b.booking_date} ${b.start_time}</td>
+                                            <td class="fw-bold">₹${b.amount}</td>
+                                            <td><span class="badge bg-${b.status === 'Confirmed' ? 'success' : (b.status === 'Completed' ? 'info' : 'secondary')} bg-opacity-10 text-${b.status === 'Confirmed' ? 'success' : (b.status === 'Completed' ? 'info' : 'dark')}">${b.status}</span></td>
+                                        </tr>
+                                    `).join('') : '<tr><td colspan="5" class="text-center text-muted py-2">No bookings for this user yet.</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                content.innerHTML = `<div class="alert alert-danger mb-0">${err.message || 'Failed to load user details'}</div>`;
+            }
+        }
+
+        function promptStatusChange(userId, userName, makeActive) {
+            selectedUserId = userId;
+            targetStatus = makeActive;
+
+            const modal = new bootstrap.Modal(document.getElementById('statusConfirmModal'));
+            document.getElementById('statusConfirmTitle').textContent = makeActive ? 'Activate User Account' : 'Deactivate User Account';
+            document.getElementById('statusConfirmBody').innerHTML = `Are you sure you want to <strong>${makeActive ? 'activate' : 'deactivate'}</strong> account for <strong>${userName}</strong>? ${!makeActive ? '<br><small class="text-danger mt-2 d-block"><i class="bi bi-exclamation-triangle me-1"></i>Deactivated users will not be able to log in or create new bookings.</small>' : ''}`;
+
+            const confirmBtn = document.getElementById('statusConfirmBtn');
+            confirmBtn.className = `btn ${makeActive ? 'btn-success' : 'btn-danger'}`;
+            confirmBtn.textContent = makeActive ? 'Activate Account' : 'Deactivate Account';
+            confirmBtn.onclick = async () => {
+                try {
+                    confirmBtn.disabled = true;
+                    const res = await window.Api.updateAdminUserStatus(selectedUserId, targetStatus);
+                    modal.hide();
+                    if (res && res.warning) {
+                        alert(res.warning);
+                    }
+                    loadUsers();
+                } catch (err) {
+                    alert(err.message || 'Failed to update user status');
+                } finally {
+                    confirmBtn.disabled = false;
+                }
+            };
+
+            modal.show();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.AppAdmin.checkAuth()) {
+                loadUsers();
+            }
+        });
+    </script>
+</body>
+</html>

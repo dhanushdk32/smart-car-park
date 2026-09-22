@@ -1,0 +1,1196 @@
+Absolutely. Below is a complete **Software Requirements Specification (SRS)** for your web-based project. I've kept the scope suitable for a college project while making the **ML-based free-slot prediction and parking analytics** the main advanced component.
+
+# Smart Car Parking Management System with Free Slot Prediction & Analysis
+
+## 1. Project Overview
+
+### Project Name
+
+**Smart Car Parking Management System with Machine Learning-Based Free Slot Prediction and Analysis**
+
+### Project Type
+
+**Web Application**
+
+### Purpose
+
+The system is designed to help users find, reserve, and pay for parking slots through a web application.
+
+The system also collects historical parking occupancy data and uses **Machine Learning** to predict the number of free parking slots for a selected parking area and future time.
+
+The administrator can manage parking areas, slots, users, bookings, payments, and view analytical reports.
+
+---
+
+# 2. Main Objectives
+
+The system should:
+
+1. Allow users to register and log in.
+2. Allow users to search parking areas.
+3. Display available and occupied parking slots.
+4. Allow users to select a specific parking slot.
+5. Allow users to select parking duration.
+6. Automatically calculate parking charges.
+7. Provide cashless/test payment.
+8. Confirm successful bookings.
+9. Maintain booking history.
+10. Allow administrators to manage parking areas and slots.
+11. Track parking occupancy.
+12. Store historical parking data.
+13. Predict future parking occupancy/free slots using ML.
+14. Display parking analytics using charts.
+15. Compare actual and predicted parking occupancy.
+16. Identify parking peak hours.
+17. Provide area-wise parking analysis.
+
+---
+
+# 3. User Roles
+
+The system will have two primary roles.
+
+## 3.1 Customer/User
+
+Users can:
+
+* Register
+* Login
+* Manage profile
+* Search parking areas
+* View slot availability
+* Select slots
+* Select date/time
+* Select duration
+* Make payment
+* View booking confirmation
+* View booking history
+* Cancel eligible bookings
+* View parking availability predictions
+
+---
+
+## 3.2 Administrator
+
+Admin can:
+
+* Login
+* View dashboard
+* Manage users
+* Manage parking areas
+* Manage parking slots
+* Manage bookings
+* Manage payments
+* Monitor parking occupancy
+* View revenue
+* View analytics
+* View ML predictions
+* Analyze historical parking data
+
+---
+
+# 4. User Module Requirements
+
+## 4.1 User Registration
+
+The system shall provide a registration form containing:
+
+* Full Name
+* Email
+* Mobile Number
+* Car Number
+* Vehicle Type
+* Password
+* Confirm Password
+
+### Vehicle types
+
+* Car
+* SUV
+* EV
+* Other
+
+### Validation
+
+The system should validate:
+
+* Required fields
+* Valid email
+* Valid mobile number
+* Unique email
+* Unique car number
+* Password confirmation
+
+---
+
+# 5. User Login
+
+User login should support:
+
+```text
+Car Number
+Password
+```
+
+The system should:
+
+* Validate credentials
+* Create authenticated session/token
+* Redirect user to dashboard
+* Display an error for invalid credentials
+
+---
+
+# 6. User Dashboard
+
+After login, the user should see:
+
+### Summary
+
+* Current bookings
+* Upcoming bookings
+* Recent bookings
+* Available parking areas
+* Parking prediction
+
+Example:
+
+```text
+Welcome!
+
+Upcoming Booking
+Mall - Slot A3
+Today, 5:00 PM
+
+Parking Areas
+
+City Center
+18 Available
+
+Mall
+32 Available
+
+Theatre
+12 Available
+```
+
+---
+
+# 7. Parking Area Module
+
+Initially, the project can contain:
+
+### Parking Areas
+
+1. City Center
+2. Mall
+3. Theatre
+
+Each parking area should have:
+
+* Area name
+* Location
+* Description
+* Total slots
+* Available slots
+* Occupied slots
+* Price per hour
+* Opening time
+* Closing time
+* Status
+
+---
+
+# 8. Parking Slot Module
+
+Each parking area contains multiple parking slots.
+
+For the initial project:
+
+```text
+City Center → 50 slots
+Mall → 50 slots
+Theatre → 50 slots
+```
+
+Total:
+
+**150 parking slots**
+
+Each slot should contain:
+
+* Slot ID
+* Slot number
+* Parking area
+* Slot type
+* Status
+
+### Slot types
+
+* Regular
+* EV
+* Accessible
+
+### Slot statuses
+
+* Available
+* Occupied
+* Reserved
+* Maintenance
+
+---
+
+# 9. Parking Layout
+
+The user should see a visual parking layout.
+
+Example:
+
+```text
+                ENTRANCE
+
+ A1     A2     A3     A4     A5
+
+ B1     B2     B3     B4     B5
+
+ C1     C2     C3     C4     C5
+
+ D1     D2     D3     D4     D5
+
+                 EXIT
+```
+
+Users can click an available slot.
+
+The system should prevent users from selecting:
+
+* Occupied slots
+* Already reserved slots
+* Maintenance slots
+
+---
+
+# 10. Booking Module
+
+The booking process should be:
+
+```text
+Select Area
+     ↓
+Select Slot
+     ↓
+Select Date
+     ↓
+Select Start Time
+     ↓
+Select Duration
+     ↓
+Calculate Price
+     ↓
+Booking Summary
+     ↓
+Payment
+     ↓
+Confirmation
+```
+
+---
+
+# 11. Booking Details
+
+A booking should contain:
+
+* Booking ID
+* User ID
+* Parking Area
+* Slot
+* Booking Date
+* Start Time
+* End Time
+* Duration
+* Price
+* Payment status
+* Booking status
+
+### Booking statuses
+
+* Pending
+* Confirmed
+* Active
+* Completed
+* Cancelled
+* Expired
+
+---
+
+# 12. Parking Fee Calculation
+
+The system should automatically calculate:
+
+```text
+Total Amount =
+Duration × Price Per Hour
+```
+
+Example:
+
+```text
+Mall
+₹40/hour
+
+Duration = 3 hours
+
+₹40 × 3 = ₹120
+```
+
+The user should see the calculation before payment.
+
+---
+
+# 13. Booking Conflict Prevention
+
+This is an important functional requirement.
+
+The system must prevent two users from booking the same slot for overlapping times.
+
+Example:
+
+```text
+A3
+
+10:00 AM - 12:00 PM
+```
+
+Another user should not be able to book:
+
+```text
+A3
+
+11:00 AM - 01:00 PM
+```
+
+because the periods overlap.
+
+---
+
+# 14. Payment Module
+
+The system should support cashless payment.
+
+For your college/demo version, use a **payment gateway test/sandbox environment**.
+
+Payment flow:
+
+```text
+Booking
+   ↓
+Payment Order
+   ↓
+Payment Gateway
+   ↓
+Payment Verification
+   ↓
+Booking Confirmation
+```
+
+Payment record should contain:
+
+* Payment ID
+* Booking ID
+* Transaction ID
+* Amount
+* Payment method
+* Payment status
+* Payment date
+
+### Payment statuses
+
+* Pending
+* Successful
+* Failed
+* Refunded
+
+---
+
+# 15. Booking Confirmation
+
+After successful payment:
+
+```text
+Payment Successful ✓
+
+Booking ID: SP20260918001
+
+Parking Area: Mall
+Slot: A3
+
+Date: 18 September 2026
+
+Time:
+05:00 PM - 08:00 PM
+
+Duration: 3 Hours
+Amount: ₹120
+```
+
+The user should be able to view the booking details later.
+
+---
+
+# 16. Booking History
+
+The user should have:
+
+### Upcoming Bookings
+
+Bookings that have not started.
+
+### Active Bookings
+
+Currently active parking sessions.
+
+### Completed Bookings
+
+Previously completed bookings.
+
+### Cancelled Bookings
+
+Cancelled reservations.
+
+Filters:
+
+* Date
+* Parking area
+* Booking status
+
+---
+
+# 17. Cancellation
+
+Users should be able to cancel eligible future bookings.
+
+When cancelled:
+
+```text
+Booking Status → Cancelled
+```
+
+The slot becomes available again.
+
+If refunds are implemented, the payment status should also be updated.
+
+---
+
+# 18. Parking Availability
+
+The system should display:
+
+```text
+Total Slots
+Occupied Slots
+Reserved Slots
+Available Slots
+Maintenance Slots
+```
+
+Example:
+
+```text
+Mall Parking
+
+Total       50
+Occupied    18
+Reserved     5
+Available   27
+Maintenance  0
+```
+
+---
+
+# 19. Live Availability vs Prediction
+
+This distinction should be maintained throughout the project.
+
+## Current Availability
+
+Based on current booking/occupancy information.
+
+Example:
+
+> **27 slots currently available**
+
+## Predicted Availability
+
+Based on the ML model.
+
+Example:
+
+> **Approximately 8 slots are predicted to be available at 6:00 PM.**
+
+Prediction must be clearly labelled as an **estimate**, not guaranteed availability.
+
+---
+
+# 20. ML Prediction Module
+
+This is the main intelligent component.
+
+The system will use historical parking data to predict future occupancy.
+
+### Input
+
+The model can use:
+
+* Parking area
+* Date
+* Time
+* Hour
+* Day of week
+* Month
+* Weekend indicator
+* Holiday indicator
+* Historical occupancy
+
+### Output
+
+```text
+Predicted Occupied Slots
+Predicted Free Slots
+```
+
+Formula:
+
+```text
+Predicted Free Slots =
+Total Slots - Predicted Occupied Slots
+```
+
+---
+
+# 21. Prediction Example
+
+User selects:
+
+```text
+Area: Mall
+Date: Tomorrow
+Time: 06:00 PM
+```
+
+ML model:
+
+```text
+Predicted Occupancy = 42
+Total Slots = 50
+```
+
+System:
+
+```text
+Predicted Free Slots = 50 - 42
+
+                     = 8
+```
+
+Display:
+
+> Approximately **8 slots may be available around 6:00 PM** based on historical parking patterns.
+
+---
+
+# 22. Historical Dataset
+
+The project should maintain historical parking records.
+
+Example dataset:
+
+```text
+date
+time
+area
+total_slots
+occupied_slots
+free_slots
+day_of_week
+is_weekend
+is_holiday
+```
+
+Example:
+
+| Date       | Time  | Area | Total | Occupied | Free |
+| ---------- | ----- | ---- | ----: | -------: | ---: |
+| 2026-09-01 | 09:00 | Mall |    50 |       12 |   38 |
+| 2026-09-01 | 10:00 | Mall |    50 |       18 |   32 |
+| 2026-09-01 | 11:00 | Mall |    50 |       25 |   25 |
+| 2026-09-01 | 12:00 | Mall |    50 |       34 |   16 |
+
+If real historical parking data is unavailable, you can use **synthetic/demo data** for the initial project and document that clearly.
+
+---
+
+# 23. ML Model Requirements
+
+The ML module should perform:
+
+```text
+Dataset Loading
+       ↓
+Data Cleaning
+       ↓
+Feature Engineering
+       ↓
+Train/Test Split
+       ↓
+Model Training
+       ↓
+Model Evaluation
+       ↓
+Model Saving
+       ↓
+Prediction
+```
+
+Possible algorithms:
+
+* Linear Regression
+* Decision Tree Regression
+* Random Forest Regression
+* Gradient Boosting Regression
+
+For the first implementation, **Random Forest Regression** is a practical starting point.
+
+---
+
+# 24. ML Model Evaluation
+
+The system should calculate:
+
+### MAE
+
+Mean Absolute Error
+
+### RMSE
+
+Root Mean Square Error
+
+### R²
+
+Coefficient of determination
+
+The admin should be able to see model performance.
+
+Example:
+
+```text
+Model Performance
+
+MAE   : 2.14
+RMSE  : 3.05
+R²    : 0.91
+```
+
+These values will depend on your actual dataset; they should **not be hardcoded**.
+
+---
+
+# 25. Prediction History
+
+Every generated prediction can be stored.
+
+Fields:
+
+```text
+Prediction ID
+Parking Area
+Prediction Date
+Prediction Time
+Predicted Occupied Slots
+Predicted Free Slots
+Model Version
+Created At
+```
+
+This allows you to later compare:
+
+```text
+Prediction
+     ↓
+Actual Result
+```
+
+---
+
+# 26. Analytics Module
+
+The admin should have a dedicated analytics page.
+
+### Analytics required
+
+#### Occupancy Analysis
+
+* Hourly occupancy
+* Daily occupancy
+* Weekly occupancy
+* Monthly occupancy
+
+#### Parking Area Analysis
+
+* City Center
+* Mall
+* Theatre
+
+#### Booking Analysis
+
+* Total bookings
+* Completed bookings
+* Cancelled bookings
+* Active bookings
+
+#### Revenue Analysis
+
+* Daily revenue
+* Weekly revenue
+* Monthly revenue
+* Area-wise revenue
+
+---
+
+# 27. Peak Hour Analysis
+
+The system should identify periods with high occupancy.
+
+Example:
+
+```text
+Parking Peak Hours
+
+City Center
+05:00 PM - 07:00 PM
+
+Mall
+05:00 PM - 08:00 PM
+
+Theatre
+06:00 PM - 09:00 PM
+```
+
+These should be calculated from the stored data rather than manually entered.
+
+---
+
+# 28. Actual vs Predicted Analysis
+
+The system should compare:
+
+```text
+Actual Occupancy
+        VS
+Predicted Occupancy
+```
+
+Example:
+
+| Time  | Actual | Predicted |
+| ----- | -----: | --------: |
+| 09:00 |     12 |        14 |
+| 10:00 |     18 |        20 |
+| 11:00 |     25 |        24 |
+| 12:00 |     34 |        32 |
+| 13:00 |     40 |        39 |
+
+Display this using a Chart.js graph.
+
+---
+
+# 29. Admin Dashboard
+
+The dashboard should show:
+
+```text
+Total Users
+Total Parking Areas
+Total Slots
+Available Slots
+Occupied Slots
+Today's Bookings
+Today's Revenue
+Active Bookings
+```
+
+And charts:
+
+* Occupancy trend
+* Revenue trend
+* Booking trend
+* Area comparison
+* Prediction overview
+
+---
+
+# 30. User Management
+
+Admin should be able to:
+
+* View users
+* Search users
+* View user details
+* View user's car number
+* View booking history
+* Activate/deactivate user accounts
+
+---
+
+# 31. Parking Area Management
+
+Admin should be able to:
+
+* Add parking area
+* Edit parking area
+* Delete/deactivate parking area
+* Set capacity
+* Set hourly price
+* Set opening hours
+* Set closing hours
+* View occupancy
+
+---
+
+# 32. Slot Management
+
+Admin should be able to:
+
+* Add slots
+* Edit slots
+* Disable slots
+* Enable slots
+* Mark maintenance
+* Change slot type
+* View current status
+
+---
+
+# 33. Booking Management
+
+Admin should be able to:
+
+* View all bookings
+* Search bookings
+* Filter by date
+* Filter by area
+* Filter by status
+* View booking details
+* Cancel bookings where appropriate
+
+---
+
+# 34. Payment Management
+
+Admin should be able to:
+
+* View payments
+* Search transactions
+* Filter successful/failed payments
+* View revenue
+* View payment details
+
+---
+
+# 35. Notifications
+
+Optional but useful.
+
+The system can show notifications for:
+
+* Booking confirmation
+* Payment success
+* Booking cancellation
+* Upcoming parking time
+* Booking expiration
+
+For the first version, **in-website notifications** are sufficient.
+
+---
+
+# 36. Security Requirements
+
+The system should implement:
+
+* Password hashing
+* Authentication
+* Authorization
+* Admin/user role separation
+* Input validation
+* SQL injection protection
+* Secure API endpoints
+* Session/token expiration
+* Payment verification
+* Server-side booking validation
+
+Never trust booking/payment values sent only from JavaScript.
+
+---
+
+# 37. API Requirements
+
+### Authentication
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+```
+
+### Parking
+
+```text
+GET /api/parking/areas
+GET /api/parking/areas/{id}
+GET /api/parking/areas/{id}/slots
+```
+
+### Booking
+
+```text
+POST /api/bookings
+GET /api/bookings
+GET /api/bookings/{id}
+PUT /api/bookings/{id}/cancel
+```
+
+### Payment
+
+```text
+POST /api/payments/create
+POST /api/payments/verify
+GET /api/payments/{id}
+```
+
+### Prediction
+
+```text
+POST /api/predictions
+GET /api/predictions/{area_id}
+```
+
+### Analytics
+
+```text
+GET /api/analytics/occupancy
+GET /api/analytics/bookings
+GET /api/analytics/revenue
+GET /api/analytics/peak-hours
+GET /api/analytics/model-performance
+```
+
+---
+
+# 38. Database Requirements
+
+Recommended tables:
+
+```text
+users
+admins
+parking_areas
+parking_slots
+bookings
+payments
+parking_occupancy
+predictions
+```
+
+### Main relationships
+
+```text
+USER
+ │
+ └───< BOOKINGS
+             │
+             ├── PARKING_SLOT
+             │       │
+             │       └── PARKING_AREA
+             │
+             └── PAYMENT
+
+
+PARKING_AREA
+      │
+      └───< PARKING_OCCUPANCY
+                    │
+                    ↓
+                 ML MODEL
+                    │
+                    ↓
+              PREDICTIONS
+```
+
+---
+
+# 39. Non-functional requirements
+
+### Performance
+
+* Pages should load quickly.
+* API responses should be optimized.
+* Database queries should be indexed.
+* Slot availability should update without unnecessary page reloads.
+
+### Responsiveness
+
+The website should work on:
+
+* Desktop
+* Laptop
+* Tablet
+* Mobile browser
+
+This is still a **web application**, but it should be responsive.
+
+### Usability
+
+* Simple navigation
+* Clear slot status
+* Clear booking process
+* Clear payment summary
+* Easy-to-read analytics
+
+### Reliability
+
+The system should prevent:
+
+* Duplicate bookings
+* Invalid slot selections
+* Invalid payment amounts
+* Booking unavailable slots
+
+---
+
+# 40. Suggested project pages
+
+## User
+
+```text
+Home
+Login
+Register
+Dashboard
+Parking Areas
+Parking Area Details
+Slot Selection
+Booking
+Payment
+Booking Confirmation
+My Bookings
+Booking Details
+Profile
+```
+
+## Admin
+
+```text
+Admin Login
+Dashboard
+Users
+Parking Areas
+Parking Slots
+Bookings
+Payments
+Occupancy Monitoring
+Analytics
+Predictions
+Model Performance
+Settings
+```
+
+---
+
+# 41. Recommended project scope
+
+For your **first complete version**, I would freeze the requirements at:
+
+### Core
+
+* User registration/login
+* Parking areas
+* 150 slots
+* Visual slot selection
+* Booking
+* Duration
+* Automatic price calculation
+* Test payment
+* Booking history
+* Cancellation
+* Admin dashboard
+* User management
+* Parking management
+* Slot management
+* Booking management
+* Payment management
+
+### ML
+
+* Historical dataset
+* Data preprocessing
+* Feature engineering
+* Occupancy prediction
+* Free-slot prediction
+* Model evaluation
+* Prediction history
+* Actual vs predicted analysis
+
+### Analytics
+
+* Occupancy trends
+* Peak hours
+* Area comparison
+* Booking statistics
+* Revenue statistics
+* Prediction charts
+
+---
+
+# 42. Optional future features
+
+Don't make these mandatory for version 1.
+
+### IoT
+
+```text
+Parking Sensor
+      ↓
+ESP32
+      ↓
+Wi-Fi
+      ↓
+Backend
+      ↓
+Database
+```
+
+This can provide actual occupancy instead of relying only on bookings.
+
+### Other future additions
+
+* QR code parking entry
+* QR code exit
+* Automatic vehicle recognition
+* Number plate recognition
+* Google Maps integration
+* Multiple parking operators
+* EV charging slots
+* Monthly parking subscriptions
+* Email/SMS notifications
+* Dynamic pricing
+* Advanced forecasting
+* Real-time WebSocket updates
+
+---
+
+# 43. Final system scope
+
+Your project can ultimately be described as:
+
+> **A web-based Smart Car Parking Management System that enables users to locate and reserve parking slots, select parking duration, make cashless payments, and manage their bookings. The system provides administrators with parking, booking, payment, revenue, and occupancy management tools. Historical parking data is analyzed using Machine Learning techniques to predict future parking occupancy and free-slot availability, while analytical dashboards provide insights into parking trends, peak hours, and model performance.**
+
+This gives you a clear **software-development component + database component + payment component + analytics component + machine-learning component**, all within one web application.

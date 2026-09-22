@@ -1,0 +1,12 @@
+pip install fastapi
+pip install uvicorn
+pip install sqlalchemy
+pip install pymysql
+pip install python-dotenv
+pip install pydantic
+pip install python-jose
+pip install passlib
+pip install pandas
+pip install numpy
+pip install scikit-learn
+pip install joblib

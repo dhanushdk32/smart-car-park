@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - SmartPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/user.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <i class="bi bi-p-square-fill me-2"></i>SmartPark
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="parking.html">Parking</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="bookings.html">My Bookings</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i> My Account
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="App.logout()">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">My Bookings</h2>
+            <a href="parking.html" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> New Booking</a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white pt-4 pb-0 border-bottom-0">
+                <ul class="nav nav-tabs border-bottom-0" id="bookingTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-medium px-4 text-dark" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">Upcoming</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-medium px-4 text-muted" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">Active</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-medium px-4 text-muted" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">Completed</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-medium px-4 text-muted" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab">Cancelled</button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body p-0 bg-light bg-opacity-50">
+                <div class="tab-content" id="bookingTabsContent">
+                    
+                    <!-- Upcoming Tab -->
+                    <div class="tab-pane fade show active p-4" id="upcoming" role="tabpanel">
+                        <div id="upcoming-bookings">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Active Tab -->
+                    <div class="tab-pane fade p-4 text-center" id="active" role="tabpanel">
+                        <div class="py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-1 text-light mb-3 d-block"></i>
+                            <p>No active bookings right now.</p>
+                        </div>
+                    </div>
+
+                    <!-- Completed Tab -->
+                    <div class="tab-pane fade p-4" id="completed" role="tabpanel">
+                        <div id="completed-bookings">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Cancelled Tab -->
+                    <div class="tab-pane fade p-4 text-center" id="cancelled" role="tabpanel">
+                        <div class="py-5 text-muted">
+                            <i class="bi bi-x-circle fs-1 text-light mb-3 d-block"></i>
+                            <p>No cancelled bookings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold">Cancel Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-circle text-warning fs-1 mb-3 d-block"></i>
+                    <p class="mb-0">Are you sure you want to cancel this booking? Refunds may take 3-5 business days.</p>
+                    <input type="hidden" id="cancelBookingId">
+                </div>
+                <div class="modal-footer border-top-0 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Keep Booking</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmCancel()">Yes, Cancel it</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBookings();
+            
+            // Tab styling update on click
+            const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', (e) => {
+                    tabs.forEach(t => {
+                        t.classList.remove('text-dark');
+                        t.classList.add('text-muted');
+                    });
+                    e.target.classList.remove('text-muted');
+                    e.target.classList.add('text-dark');
+                });
+            });
+        });
+
+        async function renderBookings() {
+            try {
+                const bookings = await window.Api.getBookings();
+                
+                const now = new Date();
+                
+                const upcoming = bookings.filter(b => {
+                    const startDt = new Date(`${b.booking_date}T${b.start_time}`);
+                    return startDt > now && !['Cancelled', 'Completed', 'Payment Failed', 'Expired'].includes(b.status);
+                });
+                
+                const active = bookings.filter(b => {
+                    const startDt = new Date(`${b.booking_date}T${b.start_time}`);
+                    const endDt = new Date(`${b.booking_date}T${b.end_time}`);
+                    return startDt <= now && endDt > now && b.status === 'Confirmed';
+                });
+                
+                const completed = bookings.filter(b => b.status === 'Completed' || (new Date(`${b.booking_date}T${b.end_time}`) <= now && b.status === 'Confirmed'));
+                const cancelled = bookings.filter(b => ['Cancelled', 'Payment Failed', 'Expired'].includes(b.status));
+
+                document.getElementById('upcoming-bookings').innerHTML = upcoming.length ? upcoming.map(b => createBookingCard(b, true)).join('') : '<p class="text-center text-muted py-3">No upcoming bookings.</p>';
+                
+                const activeContainer = document.getElementById('active');
+                activeContainer.innerHTML = active.length ? active.map(b => createBookingCard(b, false)).join('') : '<div class="py-5 text-muted"><i class="bi bi-calendar-x fs-1 text-light mb-3 d-block"></i><p>No active bookings right now.</p></div>';
+                
+                document.getElementById('completed-bookings').innerHTML = completed.length ? completed.map(b => createBookingCard(b, false)).join('') : '<p class="text-center text-muted py-3">No completed bookings.</p>';
+                
+                const cancelledContainer = document.getElementById('cancelled');
+                cancelledContainer.innerHTML = cancelled.length ? cancelled.map(b => createBookingCard(b, false)).join('') : '<div class="py-5 text-muted"><i class="bi bi-x-circle fs-1 text-light mb-3 d-block"></i><p>No cancelled bookings.</p></div>';
+                
+            } catch (error) {
+                App.showToast('Error', 'Failed to load bookings', 'danger');
+            }
+        }
+
+        function createBookingCard(booking, isUpcoming) {
+            const formattedDate = new Date(booking.booking_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            let statusBadge = '';
+            if (booking.status === 'Confirmed') statusBadge = '<span class="badge bg-primary bg-opacity-10 text-primary">Confirmed</span>';
+            else if (booking.status === 'Completed') statusBadge = '<span class="badge bg-success bg-opacity-10 text-success">Completed</span>';
+            else if (booking.status === 'Cancelled' || booking.status === 'Expired') statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger">Cancelled</span>';
+            else if (booking.status === 'Pending Payment') statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning">Pending Payment</span>';
+            else if (booking.status === 'Payment Failed') statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger">Payment Failed</span>';
+            else statusBadge = `<span class="badge bg-secondary bg-opacity-10 text-secondary">${booking.status}</span>`;
+            
+            let actionButtons = '';
+            if (isUpcoming && booking.status === 'Pending Payment') {
+                actionButtons = `
+                    <div class="mt-3 mt-md-0 d-flex gap-2">
+                        <button class="btn btn-warning btn-sm px-3" onclick="retryPayment(${booking.id})">Pay Now</button>
+                    </div>
+                `;
+            } else if (isUpcoming) {
+                actionButtons = `
+                    <div class="mt-3 mt-md-0 d-flex gap-2">
+                        <button class="btn btn-outline-danger btn-sm px-3" onclick="openCancelModal('${booking.id}')">Cancel</button>
+                        <button class="btn btn-primary btn-sm px-3">View Details</button>
+                    </div>
+                `;
+            } else {
+                actionButtons = `
+                    <div class="mt-3 mt-md-0">
+                        <button class="btn btn-outline-secondary btn-sm px-3">Download Receipt</button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card border border-light shadow-sm mb-3 rounded-3 bg-white" id="booking-${booking.id}">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 border-bottom pb-3">
+                            <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+                                <span class="text-muted small">ID: <span class="font-monospace text-dark">${booking.booking_reference}</span></span>
+                                ${statusBadge}
+                            </div>
+                            <span class="fs-5 fw-bold text-primary">₹${booking.amount}</span>
+                        </div>
+                        
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <h5 class="fw-bold mb-1">${booking.area_name}</h5>
+                                <div class="badge bg-light text-dark border"><i class="bi bi-geo-alt me-1 text-muted"></i>Slot ${booking.slot_number}</div>
+                            </div>
+                            <div class="col-md-4 border-start border-end px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="text-center">
+                                        <span class="d-block text-muted small">Date</span>
+                                        <span class="fw-medium">${formattedDate}</span>
+                                    </div>
+                                    <div class="vr"></div>
+                                    <div class="text-center">
+                                        <span class="d-block text-muted small">Time</span>
+                                        <span class="fw-medium">${booking.start_time.substring(0,5)} - ${booking.end_time.substring(0,5)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex justify-content-md-end">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function retryPayment(bookingId) {
+            try {
+                const orderData = await window.Api.createPaymentOrder(bookingId);
+                const options = {
+                    "key": orderData.data.key_id, 
+                    "amount": orderData.data.amount, 
+                    "currency": orderData.data.currency,
+                    "name": "SmartPark",
+                    "description": "Parking Slot Booking",
+                    "order_id": orderData.data.razorpay_order_id,
+                    "handler": async function (response) {
+                        try {
+                            await window.Api.verifyPayment({
+                                booking_id: bookingId,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            });
+                            App.showToast('Payment Successful', 'Your booking is confirmed.', 'success');
+                            renderBookings();
+                        } catch (error) {
+                            App.showToast('Payment Verification Failed', error.message, 'danger');
+                            renderBookings();
+                        }
+                    },
+                    "theme": { "color": "#0D8ABC" }
+                };
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                    App.showToast('Payment Failed', response.error.description, 'danger');
+                    renderBookings();
+                });
+                rzp.open();
+            } catch (error) {
+                App.showToast('Error', error.message, 'danger');
+            }
+        }
+
+        function openCancelModal(id) {
+            document.getElementById('cancelBookingId').value = id;
+            const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            modal.show();
+        }
+
+        async function confirmCancel() {
+            const id = document.getElementById('cancelBookingId').value;
+            
+            const btn = document.querySelector('#cancelModal .btn-danger');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cancelling...';
+            btn.disabled = true;
+
+            try {
+                await window.Api.cancelBooking(id);
+                App.showToast('Cancelled', 'Booking cancelled successfully. Refund initiated.', 'success');
+                renderBookings(); // Refresh the list
+            } catch (error) {
+                App.showToast('Error', error.message, 'danger');
+            } finally {
+                btn.innerHTML = 'Yes, Cancel it';
+                btn.disabled = false;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
+                modal.hide();
+            }
+        }
+    </script>
+</body>
+</html>
